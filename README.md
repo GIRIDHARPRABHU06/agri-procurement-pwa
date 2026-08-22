@@ -52,7 +52,7 @@ The app ships with a single pre-set login:
 ## ✅ What You Need
 
 - A Gmail / Google account (for Google Sheets sync)
-   if you dont want create use this 
+   if you aren't using this for actual purpose but to check the apps working and do not want create new database use these links
    - sheets:https://docs.google.com/spreadsheets/d/1Bz9zMrEHwCOYFS4WxH414Jx1H_DKoVqn3xO5hOAmgfg/edit?gid=0#gid=0
    - Appscript link:https://script.google.com/macros/s/AKfycbxcXlzBciukUGZjrLkdvaloCFAT9bxz5cb7LY0kx2ej5baSL0cX90Uen8pQ4BHFM5Ge/exec
 
