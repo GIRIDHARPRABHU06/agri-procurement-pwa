@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#7B3F00"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Agri Records"/>
+<!-- SINGLE SOURCE OF TRUTH for the browser tab title. Do not add any other
+     <title> tag or any script that sets/appends to document.title anywhere
+     else in this file — see the enforcement script near the closing </body>
+     tag which re-applies APP_TITLE on load as a safeguard against this
+     ever being duplicated/concatenated again. -->
+<title>Agri-Procurement & Ledger PWA</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="favicon.ico" sizes="any"/>
+<link rel="icon" type="image/png" href="icons/icon-192.png"/>
+<link rel="shortcut icon" href="favicon.ico"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--br:#7B3F00;--brd:#5C2E00;--brl:#A0522D;--go:#D4A017;--gl:#F5E6C0;--gn:#2D6A2D;--gnl:#E8F5E8;--rd:#C0392B;--rdl:#FDECEA;--bg:#FDF6EC;--card:#fff;--tx:#2C1A0E;--txs:#6B4C2A;--bo:#E8D5B7;--sh:0 2px 12px rgba(123,63,0,.10)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans Kannada','Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;max-width:480px;margin:0 auto}
+/* LOGIN */
+#LS{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;background:linear-gradient(160deg,#7B3F00 0%,#A0522D 60%,#D4A017 100%)}
+.llogo{width:150px;height:auto;max-height:80px;background:transparent;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:none;overflow:hidden}
+.llogo img{width:100%;height:100%;object-fit:contain}
+.tblogo{width:44px;height:auto;max-height:26px;object-fit:contain;margin-right:8px}
+.tbleft{display:flex;align-items:center}
+.slhdrimg{width:120px;height:auto;max-height:58px;object-fit:contain;display:block;margin:0 auto 6px}
+.ltitle{color:#fff;font-size:22px;font-weight:700;text-align:center;line-height:1.3}
+.lsub{color:rgba(255,255,255,.75);font-size:13px;margin-top:4px;text-align:center}
+.lcard{background:#fff;border-radius:20px;padding:28px 24px;width:100%;margin-top:32px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.lcard label{font-size:13px;font-weight:600;color:var(--br);display:block;margin-bottom:6px}
+.lcard input{width:100%;padding:13px 16px;border:2px solid var(--bo);border-radius:12px;font-size:16px;font-family:inherit;margin-bottom:16px;outline:none;transition:border .2s}
+.lcard input:focus{border-color:var(--br)}
+.btnp{width:100%;padding:15px;background:var(--br);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer}
+.lerr{color:var(--rd);font-size:13px;text-align:center;margin-top:10px;display:none}
+/* APP */
+#AS{display:none;flex-direction:column;min-height:100vh}
+.topbar{background:var(--br);padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.tbtitle{color:#fff;font-size:16px;font-weight:700}
+.tbsub{color:rgba(255,255,255,.7);font-size:11px}
+.ibtn{background:rgba(255,255,255,.15);border:none;border-radius:10px;padding:7px 10px;color:#fff;font-size:18px;cursor:pointer}
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--bo);display:flex;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 12px;border:none;background:none;cursor:pointer;color:var(--txs);font-size:10px;font-family:inherit}
+.ni .ico{font-size:22px;margin-bottom:2px}
+.ni.active{color:var(--br)}
+/* PAGES */
+.page{display:none;padding:16px 16px 100px}
+.page.active{display:block}
+/* DASHBOARD */
+.greeting{font-size:13px;color:var(--txs);margin-bottom:4px}
+.greeting strong{color:var(--br);font-size:18px;display:block}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.sc{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--sh);border-left:4px solid var(--go)}
+.sc.gn{border-left-color:var(--gn)}.sc.rd{border-left-color:var(--rd)}.sc.bl{border-left-color:#2980B9}
+.sn{font-size:22px;font-weight:700;color:var(--br)}
+.sl{font-size:11px;color:var(--txs);margin-top:2px;line-height:1.3}
+.sectit{font-size:14px;font-weight:700;color:var(--br);margin-bottom:10px}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.abtn{background:var(--card);border-radius:16px;padding:18px 12px;border:2px solid var(--bo);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center}
+.abtn:active{transform:scale(.97);border-color:var(--br)}
+.abtn .ai{font-size:28px}.abtn .al{font-size:12px;font-weight:600;color:var(--br);line-height:1.3}.abtn .as{font-size:10px;color:var(--txs)}
+/* CARDS */
+.rc{background:var(--card);border-radius:14px;padding:14px;box-shadow:var(--sh);border:1px solid var(--bo);margin-bottom:10px}
+.rtop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.rname{font-size:15px;font-weight:600}
+.rtype{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--gl);color:var(--br)}
+.rtype.direct{background:var(--gnl);color:var(--gn)}
+.rdet{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:10px}
+.rd2{font-size:11px;color:var(--txs)}
+.rd2 strong{display:block;color:var(--tx);font-size:13px}
+.rbot{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--bo)}
+.rbal{font-size:16px;font-weight:700;color:var(--gn)}
+.rbal.neg{color:var(--rd)}
+.delbtn{background:var(--rdl);color:var(--rd);border:1.5px solid var(--rd);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+/* FORMS */
+.fc{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--sh);margin-bottom:12px}
+.fst{font-size:13px;font-weight:700;color:var(--br);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--bo)}
+.fi{margin-bottom:14px}
+.fi label{font-size:12px;font-weight:600;color:var(--txs);display:block;margin-bottom:6px}
+.fi label span{color:var(--tx);font-size:13px;display:block}
+.fi input,.fi select{width:100%;padding:13px 14px;border:2px solid var(--bo);border-radius:12px;font-size:16px;font-family:inherit;background:#fff;outline:none;transition:border .2s;color:var(--tx)}
+.fi input:focus,.fi select:focus{border-color:var(--br)}
+.fi input[readonly]{background:var(--bg);color:var(--br);font-weight:600}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cbox{background:var(--gl);border-radius:12px;padding:14px;margin-top:8px}
+.crow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(123,63,0,.1)}
+.crow:last-child{border-bottom:none;font-weight:700;font-size:15px;color:var(--br)}
+.crow span:first-child{font-size:12px;color:var(--txs)}
+.crow span:last-child{font-size:13px;font-weight:600;color:var(--tx)}
+.sbtn{width:100%;padding:16px;background:var(--br);color:#fff;border:none;border-radius:14px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px}
+.sbtn.gn{background:var(--gn)}
+.calcbtn{width:100%;padding:11px;background:var(--br);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:8px}
+/* SLIP */
+.slov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:flex-end;justify-content:center}
+.slov.open{display:flex}
+.slsh{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px 20px 40px}
+.slh{width:40px;height:4px;background:#ddd;border-radius:4px;margin:0 auto 16px}
+.slhdr{text-align:center;margin-bottom:16px}
+.slhdr h2{font-size:18px;font-weight:700;color:var(--br)}
+.slhdr p{font-size:12px;color:var(--txs);margin-top:2px}
+.slnum{background:var(--gl);border-radius:8px;padding:8px 16px;text-align:center;font-weight:700;color:var(--br);font-size:18px;margin-bottom:16px}
+.sltbl{width:100%;border-collapse:collapse;font-size:13px}
+.sltbl tr:nth-child(even) td{background:var(--bg)}
+.sltbl td{padding:8px 10px;border:1px solid var(--bo)}
+.sltbl td:first-child{font-weight:600;color:var(--txs);width:50%}
+.sltot{background:var(--br)!important;color:#fff;font-weight:700}
+.stmttbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
+.stmttbl tr:nth-child(even) td{background:var(--bg)}
+.stmttbl th,.stmttbl td{padding:6px 8px;border:1px solid var(--bo);text-align:left;white-space:nowrap}
+.stmttbl th{background:var(--gl);font-weight:700;color:var(--br)}
+/* Horizontally-scrollable wrapper for wide tables (Procurement/Payment
+   Records in the Farmer Statement). Column count/content/font-size are
+   unchanged — this only lets the table itself scroll sideways instead
+   of being clipped by its container, on both touch and pointer devices. */
+.tblwrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;overscroll-behavior-x:contain}
+.tblwrap table{width:max-content;min-width:100%}
+.stmtsec h3{margin:16px 0 6px;font-size:14px;color:var(--br)}
+.slact{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.slbtn{padding:13px;border-radius:12px;border:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.slbtn.wa{background:#25D366;color:#fff}
+.slbtn.sy{background:var(--br);color:#fff}
+.slbtn.cl{background:var(--bo);color:var(--tx)}
+.slbtn.dl{background:var(--rdl);color:var(--rd);border:1.5px solid var(--rd)}
+/* SEARCH + FILTERS */
+.sb{display:flex;gap:8px;margin-bottom:14px}
+.sb input{flex:1;padding:11px 14px;border:2px solid var(--bo);border-radius:12px;font-size:15px;font-family:inherit;outline:none}
+.sb input:focus{border-color:var(--br)}
+.ftabs{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.ft{padding:7px 16px;border-radius:20px;border:2px solid var(--bo);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;background:#fff;color:var(--txs);font-family:inherit}
+.ft.active{background:var(--br);color:#fff;border-color:var(--br)}
+/* FARMER */
+.fcard{background:var(--card);border-radius:14px;padding:14px;box-shadow:var(--sh);border:1px solid var(--bo);margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.fav{width:44px;height:44px;border-radius:50%;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+/* SETTINGS */
+.ssec{background:var(--card);border-radius:16px;box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.sit{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bo);cursor:pointer}
+.sit:last-child{border-bottom:none}
+.sil{display:flex;align-items:center;gap:12px}
+.sic{font-size:20px;width:36px;text-align:center}
+.slbl{font-size:14px;font-weight:500}
+.ssub{font-size:11px;color:var(--txs);margin-top:1px}
+/* STATEMENT HEADER (shared by in-app view + print) */
+.stmthdr{text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--br)}
+.stmthdr img{width:70px;height:auto;max-height:70px;object-fit:contain;display:block;margin:0 auto 6px}
+.stmthdr .cn{font-size:16px;font-weight:700;color:var(--br)}
+.stmthdr .cnk{font-size:13px;color:var(--br);margin-top:1px}
+.stmthdr .st{font-size:13px;font-weight:700;letter-spacing:1px;margin-top:6px;color:var(--tx)}
+.stmtmeta{font-size:12.5px;color:var(--tx);margin-top:10px;text-align:left;line-height:1.6}
+.stmtmeta b{color:var(--txs);font-weight:600}
+/* PRINT-ONLY AREA — used to generate a printable statement page */
+#printArea{display:none}
+@media print{
+  @page{ size: landscape; margin: 10mm; }
+  body *{visibility:hidden}
+  #printArea, #printArea *{visibility:visible}
+  #printArea{display:block;position:absolute;left:0;top:0;width:100%;padding:0}
+  #printArea .sltbl td, #printArea .stmttbl td, #printArea .stmttbl th{border:1px solid #999}
+  /* Let the browser size columns to fit the (now landscape, wider) page
+     instead of clipping at container edges — same column count/content,
+     just no forced sideways scrolling on a printed/PDF page. */
+  #printArea .tblwrap{overflow:visible}
+  #printArea .stmttbl{table-layout:auto;width:100%}
+  #printArea .stmttbl th,#printArea .stmttbl td{white-space:normal;word-break:break-word;font-size:11px;padding:5px 6px}
+  /* Repeat the header row on every printed page when a table spans
+     multiple pages, and keep each row from being split across a page
+     break mid-row. */
+  #printArea .stmttbl thead{display:table-header-group}
+  #printArea .stmttbl tr{page-break-inside:avoid}
+}
+/* POPUP */
+.pop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:flex-end;justify-content:center}
+.pop.open{display:flex}
+.popsh{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px 40px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* SYNC BANNER */
+.sban{background:var(--gl);border:1px solid var(--go);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:13px;color:var(--br)}
+.sban.ok{background:var(--gnl);border-color:var(--gn);color:var(--gn)}
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:24px;font-size:14px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1}
+/* TOP BTNS */
+.topbtns{display:flex;gap:8px;margin-bottom:12px}
+.tbtn{flex:1;padding:11px 6px;border:none;border-radius:12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.tbtn.br{background:var(--br);color:#fff}
+.tbtn.gn{background:var(--gn);color:#fff}
+.tbtn.gy{background:#555;color:#fff}
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--txs)}
+.empty .ei{font-size:48px;margin-bottom:12px}
+/* NOTE BOX */
+.note{background:#FFF8E1;border:1px solid #FFD54F;border-radius:10px;padding:12px;font-size:12px;color:#5D4037;margin-bottom:14px;line-height:1.6}
+::-webkit-scrollbar{width:0}
+.hidden{display:none!important}
+.delbtn:active{background:#C0392B;color:#fff}
+
+/* ══════════════════════════════════════
+   MOBILE / RESPONSIVE / USABILITY PASS
+   ══════════════════════════════════════ */
+html{-webkit-text-size-adjust:100%}
+body{overflow-x:hidden}
+img{max-width:100%}
+button,.ibtn,.ni,.abtn,.ft,.tbtn,.delbtn,.sit,.slbtn{min-height:40px}
+button{touch-action:manipulation}
+.rname,.tbtitle,.sn,.al{overflow-wrap:anywhere;word-break:break-word}
+.rtop{gap:8px}
+.rtop .rname{flex:1;min-width:0}
+.rtype{flex-shrink:0;white-space:nowrap}
+.rc,.fc,.fcard{margin-bottom:12px}
+.rc:last-child,.fc:last-child,.fcard:last-child{margin-bottom:0}
+.rdet{overflow-wrap:anywhere}
+.rd2 strong{overflow-wrap:anywhere}
+.sltbl{table-layout:fixed}
+.sltbl td{overflow-wrap:anywhere;word-break:break-word}
+.slsh,.popsh{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.slsh,.popsh{max-height:88vh;display:flex;flex-direction:column;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+/* Dialogs are capped at 88vh above, but without an explicit overflow rule
+   the content just spills out past that cap with no way to reach it —
+   this is what made Save/Close unreachable on the Record Payment dialog
+   (and any other dialog whose content is taller than the screen). Scroll
+   happens INSIDE the sheet now instead of the page scrolling behind it. */
+.slsh,.popsh{overflow-y:auto}
+/* While any dialog is open, lock the page behind it so a swipe over the
+   dim backdrop moves the dialog's own content (via the rule above)
+   instead of scrolling the page underneath. */
+body.noscroll{overflow:hidden}
+.sb input{min-height:44px}
+.ft{min-height:36px;display:inline-flex;align-items:center}
+.bnav{padding-bottom:env(safe-area-inset-bottom)}
+.page{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+button:disabled,.abtn.disabled{opacity:.6;cursor:not-allowed;pointer-events:none}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:380px){
+  .page{padding:12px 12px 100px}
+  .sg{gap:8px}
+  .sc{padding:12px;border-radius:14px}
+  .sn{font-size:19px}
+  .sl{font-size:10px}
+  .agrid{gap:8px}
+  .abtn{padding:14px 8px}
+  .abtn .ai{font-size:24px}
+  .fr3{grid-template-columns:1fr 1fr}
+  .rdet{grid-template-columns:1fr 1fr}
+  .slact{grid-template-columns:1fr}
+  .topbtns{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="LS">
+  <div class="llogo"><img src="icons/logo.png" alt="Agri-Procurement & Ledger PWA"/></div>
+  <div class="ltitle">Agri-Procurement<br><span style="font-size:16px;font-weight:500">& Ledger PWA</span></div>
+  <div class="lsub">ಕಬ್ಬು ಖರೀದಿ ದಾಖಲೆ | Cane Procurement Records</div>
+  <div class="lcard">
+    <label>ಇಮೇಲ್ / Email</label>
+    <input type="email" id="lemail" placeholder="email@example.com" autocomplete="email"/>
+    <label>ಪಾಸ್‌ವರ್ಡ್ / Password</label>
+    <input type="password" id="lpass" placeholder="••••••••"/>
+    <button class="btnp" onclick="withBusy(event,'⏳ Logging in...',doLogin)">🔓 ಪ್ರವೇಶ / Login</button>
+    <div class="lerr" id="lerr">❌ ತಪ್ಪಾದ ಇಮೇಲ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="AS">
+  <div class="topbar">
+    <div class="tbleft"><img class="tblogo" src="icons/logo.png" alt="Agri-Procurement & Ledger PWA"/><div><div class="tbtitle" id="ptitle">📊 ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</div><div class="tbsub">Agri-Procurement & Ledger PWA</div></div></div>
+    <div style="display:flex;gap:8px">
+      <button class="ibtn" onclick="withBusy(event,null,syncNow)" title="Sync">☁️</button>
+      <button class="ibtn" onclick="doLogout()" title="Logout">🚪</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="pDash">
+    <div class="greeting">ನಮಸ್ಕಾರ! Good morning 👋<strong id="todayDate"></strong></div>
+    <div class="sg">
+      <div class="sc"><div class="sn" id="stTotal">0</div><div class="sl">ಒಟ್ಟು ದಾಖಲೆ<br>Total Records</div></div>
+      <div class="sc gn"><div class="sn" id="stCane">0T</div><div class="sl">ಇಂದಿನ ಕಬ್ಬು<br>Today's Cane</div></div>
+      <div class="sc bl"><div class="sn" id="stFarm">0</div><div class="sl">ರೈತರು<br>Farmers</div></div>
+      <div class="sc rd"><div class="sn" id="stPend">0</div><div class="sl">ಬಾಕಿ ಸಿಂಕ್<br>Pending Sync</div></div>
+    </div>
+    <div class="sectit" style="margin-top:4px">📆 ಈ ಮಾಸ | This Month</div>
+    <div class="cbox" style="margin-bottom:16px">
+      <div class="crow"><span>ಖರೀದಿ / Procurement</span><span id="mSumProc">₹0</span></div>
+      <div class="crow"><span>ಪಾವತಿ / Payments</span><span id="mSumPay">₹0</span></div>
+      <div class="crow"><span>ಖರ್ಚು / Expenses</span><span id="mSumExp">₹0</span></div>
+      <div class="crow"><span>ನಿವ್ವಳ / Net</span><span id="mSumNet">₹0</span></div>
+    </div>
+    <div class="sectit" style="margin-top:4px">⚡ ತ್ವರಿತ ನಮೂದು | Quick Entry</div>
+    <div class="agrid" style="margin-bottom:16px">
+      <div class="abtn" onclick="goTo('pEntry','ec')"><div class="ai">📋</div><div class="al">ನೇರ ಕಬ್ಬು<br>Direct Cane</div><div class="as">₹2,900/ton</div></div>
+      <div class="abtn" onclick="goTo('pEntry','ed')"><div class="ai">🧑‍🌾</div><div class="al">ಒಪ್ಪಂದ ರೈತ<br>Contract Farmer</div><div class="as">₹3,500/ton</div></div>
+      <div class="abtn" onclick="goTo('pFarm','')"><div class="ai">👥</div><div class="al">ರೈತ ಪಟ್ಟಿ<br>Farmer List</div><div class="as">Add / View</div></div>
+      <div class="abtn" onclick="if(!this.dataset.busy){this.dataset.busy=1;syncNow().finally(()=>delete this.dataset.busy)}"><div class="ai">☁️</div><div class="al">Google ಸಿಂಕ್<br>Sync Now</div><div class="as">Upload records</div></div>
+    </div>
+    <div class="sectit">📁 ಇತ್ತೀಚಿನ ದಾಖಲೆಗಳು | Recent Records</div>
+    <div id="recentList"></div>
+  </div>
+
+  <!-- ENTRY -->
+  <div class="page" id="pEntry">
+    <div class="ftabs">
+      <button class="ft active" id="tabC" onclick="switchTab('ec')">📋 ನೇರ | Direct</button>
+      <button class="ft" id="tabD" onclick="switchTab('ed')">🧑‍🌾 ಒಪ್ಪಂದ | Contract</button>
+    </div>
+    <!-- CONTRACT -->
+    <div id="ec">
+      <div class="fc">
+        <div class="fst">📋 ನೇರ ಕಬ್ಬು | Direct Cane</div>
+        <div class="fi"><label><span>ದಿನಾಂಕ / Date</span></label><input type="date" id="c_date"/></div>
+        <div class="fi"><label><span>ತೂಕ ಚೀಟಿ ಸಂಖ್ಯೆ / Weighment Slip Number</span></label><input type="text" id="c_wslip" placeholder="ತೂಕ ಚೀಟಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ"/></div>
+        <div class="fi"><label><span>ರೈತರ ಹೆಸರು / Farmer Name</span></label><input type="text" id="c_farmer" placeholder="ಹೆಸರು ಟೈಪ್ ಮಾಡಿ" list="flist" autocomplete="off" oninput="fillFarmerDetails('c')" onchange="fillFarmerDetails('c')"/><datalist id="flist"></datalist></div>
+        <div class="fi"><label><span>ಜಮೀನಿನ ಮಾಲೀಕರ ಹೆಸರು / Land Owner Name (ಐಚ್ಛಿಕ / Optional)</span></label><input type="text" id="c_landowner" placeholder="ಜಮೀನಿನ ಮಾಲೀಕರ ಹೆಸರು (ಇದ್ದರೆ ಮಾತ್ರ)"/></div>
+        <div class="fr2">
+          <div class="fi"><label><span>ಗ್ರಾಮ / Village</span></label><input type="text" id="c_village" placeholder="ಗ್ರಾಮ"/></div>
+          <div class="fi"><label><span>ವಾಹನ / Vehicle</span></label><input type="text" id="c_vehicle" placeholder="KA-XX-XXXX" style="text-transform:uppercase"/></div>
+        </div>
+        <div class="fi"><label><span>ಮೊಬೈಲ್ / Mobile</span></label><input type="tel" id="c_mobile" placeholder="9XXXXXXXXX" maxlength="10"/></div>
+      </div>
+      <div class="fc">
+        <div class="fst">⚖️ ತೂಕ ವಿವರ | Weight Details</div>
+        <div class="fr2">
+          <div class="fi"><label><span>ಒಟ್ಟು ತೂಕ / Gross (Kg)</span></label><input type="number" id="c_gross" placeholder="0" oninput="cC()" onchange="cC()" onkeyup="cC()"/></div>
+          <div class="fi"><label><span>ಟಾರ್ / Tare (Kg)</span></label><input type="number" id="c_tare" placeholder="0" oninput="cC()" onchange="cC()" onkeyup="cC()"/></div>
+        </div>
+        <div class="fi"><label><span>ಕಡಿತ / Deduction (%)</span></label><input type="number" id="c_ded" value="1" oninput="cC()" onchange="cC()" onkeyup="cC()"/></div>
+        <button class="calcbtn" onclick="cC()">🔢 ಲೆಕ್ಕ ಮಾಡಿ / Calculate</button>
+        <div class="cbox">
+          <div class="crow"><span>ಕಬ್ಬು ತೂಕ / Cane Wt</span><span id="cc_cane">0 Kg</span></div>
+          <div class="crow"><span>ಕಡಿತ / Deduction</span><span id="cc_ded">0 Kg</span></div>
+          <div class="crow"><span>ನಿವ್ವಳ ಕಬ್ಬು / Net Cane</span><span id="cc_net">0 Kg</span></div>
+          <div class="crow"><span>ನಿವ್ವಳ ತೂಕ / Net Ton</span><span id="cc_ton">0.000 T</span></div>
+        </div>
+      </div>
+      <div class="fc">
+        <div class="fst">💰 ದರ ವಿವರ | Rate Details</div>
+        <div class="fr3">
+          <div class="fi"><label><span>ಕಬ್ಬು ದರ<br>Cane Rate</span></label><input type="number" id="c_cr" value="2900" oninput="cC()" onchange="cC()"/></div>
+          <div class="fi"><label><span>ಕಟಾವು<br>Harvest</span></label><input type="number" id="c_hr" value="350" oninput="cC()" onchange="cC()"/></div>
+          <div class="fi"><label><span>ಸಾಗಣೆ<br>Transport</span></label><input type="number" id="c_tr" value="250" oninput="cC()" onchange="cC()"/></div>
+        </div>
+        <div class="cbox">
+          <div class="crow"><span>ಕಬ್ಬಿನ ಮೊತ್ತ / Cane Amt</span><span id="cc_ca">₹0</span></div>
+          <div class="crow"><span>ಕಟಾವು / Harvest Amt</span><span id="cc_ha">₹0</span></div>
+          <div class="crow"><span>ಸಾಗಣೆ / Transport Amt</span><span id="cc_ta">₹0</span></div>
+          <div class="crow"><span>ಒಟ್ಟು / Total</span><span id="cc_tot">₹0</span></div>
+        </div>
+      </div>
+      <div class="fc">
+        <div class="fst">💳 ಬಾಕಿ | Outstanding</div>
+        <div class="fi"><label><span>ಬಾಕಿ ಮೊತ್ತ / Outstanding Balance</span></label><input type="number" id="c_bal" readonly/></div>
+        <div class="note">ಪಾವತಿಗಳನ್ನು ಕೇವಲ "Record Payment" (ರೈತರ ಪುಟ) ಮೂಲಕ ಮಾತ್ರ ದಾಖಲಿಸಿ. All payments are recorded only via Record Payment in the Farmers section.</div>
+      </div>
+      <button class="sbtn" onclick="withBusy(event,'⏳ ಉಳಿಸಲಾಗುತ್ತಿದೆ...',submitC)">✅ ದಾಖಲಿಸು / Save Record</button>
+    </div>
+    <!-- DIRECT -->
+    <div id="ed" class="hidden">
+      <div class="fc">
+        <div class="fst">🧑‍🌾 ಒಪ್ಪಂದ ರೈತ | Contract Farmer</div>
+        <div class="fi"><label><span>ದಿನಾಂಕ / Date</span></label><input type="date" id="d_date"/></div>
+        <div class="fi"><label><span>ತೂಕ ಚೀಟಿ ಸಂಖ್ಯೆ / Weighment Slip Number</span></label><input type="text" id="d_wslip" placeholder="ತೂಕ ಚೀಟಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ"/></div>
+        <div class="fi"><label><span>ರೈತರ ಹೆಸರು / Farmer Name</span></label><input type="text" id="d_farmer" placeholder="ಹೆಸರು ಟೈಪ್ ಮಾಡಿ" list="flist" autocomplete="off" oninput="fillFarmerDetails('d')" onchange="fillFarmerDetails('d')"/></div>
+        <div class="fi"><label><span>ಜಮೀನಿನ ಮಾಲೀಕರ ಹೆಸರು / Land Owner Name (ಐಚ್ಛಿಕ / Optional)</span></label><input type="text" id="d_landowner" placeholder="ಜಮೀನಿನ ಮಾಲೀಕರ ಹೆಸರು (ಇದ್ದರೆ ಮಾತ್ರ)"/></div>
+        <div class="fr2">
+          <div class="fi"><label><span>ಗ್ರಾಮ / Village</span></label><input type="text" id="d_village" placeholder="ಗ್ರಾಮ"/></div>
+          <div class="fi"><label><span>ವಾಹನ / Vehicle</span></label><input type="text" id="d_vehicle" placeholder="KA-XX-XXXX" style="text-transform:uppercase"/></div>
+        </div>
+        <div class="fi"><label><span>ಮೊಬೈಲ್ / Mobile</span></label><input type="tel" id="d_mobile" placeholder="9XXXXXXXXX" maxlength="10"/></div>
+      </div>
+      <div class="fc">
+        <div class="fst">⚖️ ತೂಕ ವಿವರ | Weight Details</div>
+        <div class="fr2">
+          <div class="fi"><label><span>ಒಟ್ಟು / Gross (Kg)</span></label><input type="number" id="d_gross" placeholder="0" oninput="cD()" onchange="cD()" onkeyup="cD()"/></div>
+          <div class="fi"><label><span>ಟಾರ್ / Tare (Kg)</span></label><input type="number" id="d_tare" placeholder="0" oninput="cD()" onchange="cD()" onkeyup="cD()"/></div>
+        </div>
+        <div class="fi"><label><span>ಕಡಿತ / Deduction (%)</span></label><input type="number" id="d_ded" value="1" oninput="cD()" onchange="cD()"/></div>
+        <button class="calcbtn" style="background:var(--gn)" onclick="cD()">🔢 ಲೆಕ್ಕ ಮಾಡಿ / Calculate</button>
+        <div class="cbox">
+          <div class="crow"><span>ಕಬ್ಬು ತೂಕ / Cane Wt</span><span id="dc_cane">0 Kg</span></div>
+          <div class="crow"><span>ಕಡಿತ / Deduction</span><span id="dc_ded">0 Kg</span></div>
+          <div class="crow"><span>ನಿವ್ವಳ ಕಬ್ಬು / Net Cane</span><span id="dc_net">0 Kg</span></div>
+          <div class="crow"><span>ನಿವ್ವಳ ತೂಕ / Net Ton</span><span id="dc_ton">0.000 T</span></div>
+        </div>
+      </div>
+      <div class="fc">
+        <div class="fst">💰 ದರ ವಿವರ | Rate Details</div>
+        <div class="fi"><label><span>ಕಬ್ಬು ದರ / Cane Rate (₹/ton)</span></label><input type="number" id="d_cr" value="3500" oninput="cD()" onchange="cD()"/></div>
+        <div class="cbox"><div class="crow"><span>ಕಬ್ಬಿನ ಮೊತ್ತ / Cane Amount</span><span id="dc_ca">₹0</span></div></div>
+      </div>
+      <div class="fc">
+        <div class="fst">💳 ಬಾಕಿ | Outstanding</div>
+        <div class="fi"><label><span>ಬಾಕಿ ಮೊತ್ತ / Outstanding Balance</span></label><input type="number" id="d_bal" readonly/></div>
+        <div class="note">ಪಾವತಿಗಳನ್ನು ಕೇವಲ "Record Payment" (ರೈತರ ಪುಟ) ಮೂಲಕ ಮಾತ್ರ ದಾಖಲಿಸಿ. All payments are recorded only via Record Payment in the Farmers section.</div>
+      </div>
+      <button class="sbtn gn" onclick="withBusy(event,'⏳ ಉಳಿಸಲಾಗುತ್ತಿದೆ...',submitD)">✅ ದಾಖಲಿಸು / Save Record</button>
+    </div>
+  </div>
+
+  <!-- RECORDS -->
+  <div class="page" id="pRec">
+    <div class="topbtns">
+      <button class="tbtn br" onclick="withBusy(event,'⏳ Syncing...',syncNow)">☁️ Sync All</button>
+      <button class="tbtn gn" onclick="openSheet()">📊 View Sheets</button>
+      <button class="tbtn gy" onclick="exportCSV()">📥 CSV</button>
+    </div>
+    <div class="sb"><input type="text" placeholder="🔍 ಹೆಸರು, ಗ್ರಾಮ..." id="srch" oninput="renderRecsDebounced()"/></div>
+    <div class="ftabs">
+      <button class="ft active" onclick="setF('all',this)">ಎಲ್ಲ / All</button>
+      <button class="ft" onclick="setF('contract',this)">📋 Direct</button>
+      <button class="ft" onclick="setF('direct',this)">🧑‍🌾 Contract</button>
+      <button class="ft" onclick="setF('pending',this)">☁️ Pending</button>
+    </div>
+    <div id="recList"></div>
+  </div>
+
+  <!-- FARMERS -->
+  <div class="page" id="pFarm">
+    <div class="fc">
+      <div class="fst">➕ ರೈತ ಸೇರಿಸಿ | Add Farmer</div>
+      <div class="fi"><label><span>ಹೆಸರು / Name</span></label><input type="text" id="fn_n" placeholder="ರೈತರ ಹೆಸರು"/></div>
+      <div class="fr2">
+        <div class="fi"><label><span>ಗ್ರಾಮ / Village</span></label><input type="text" id="fn_v" placeholder="ಗ್ರಾಮ"/></div>
+        <div class="fi"><label><span>ಮೊಬೈಲ್ / Mobile</span></label><input type="tel" id="fn_m" placeholder="9XXXXXXXXX" maxlength="10"/></div>
+      </div>
+      <button class="sbtn" style="margin-top:4px" onclick="withBusy(event,'⏳ ಸೇರಿಸಲಾಗುತ್ತಿದೆ...',addFarmer)">➕ ಸೇರಿಸಿ / Add</button>
+    </div>
+    <div class="sectit">👥 ರೈತರ ಪಟ್ಟಿ (<span id="fcnt">0</span>)</div>
+    <div class="sb"><input type="text" placeholder="🔍 Search name, village, mobile, land owner..." id="fSrch" oninput="renderFarmsDebounced()"/></div>
+    <div id="farmList"></div>
+  </div>
+
+  <!-- CASH BOOK -->
+  <div class="page" id="pCash">
+    <div class="sg" style="grid-template-columns:1fr 1fr">
+      <div class="sc rd"><div class="sn" id="cbToday">₹0</div><div class="sl">ಇಂದಿನ ಖರ್ಚು<br>Today's Expenses</div></div>
+      <div class="sc go"><div class="sn" id="cbMonth">₹0</div><div class="sl">ಈ ತಿಂಗಳ ಖರ್ಚು<br>This Month's Expenses</div></div>
+      <div class="sc bl"><div class="sn" id="cbManual">₹0</div><div class="sl">ಮ್ಯಾನುವಲ್ ಖರ್ಚು<br>Manual Expenses Total</div></div>
+      <div class="sc gn"><div class="sn" id="cbProc">₹0</div><div class="sl">ಕಬ್ಬು ಪಾವತಿ<br>Procurement Payments Total</div></div>
+    </div>
+    <button class="sbtn" onclick="openExpenseModal()">➕ ಮ್ಯಾನುವಲ್ ಖರ್ಚು ಸೇರಿಸಿ / Add Manual Expense</button>
+    <div class="sb" style="margin-top:14px"><input type="text" placeholder="🔍 Search item, paid to, farmer..." id="cbSrch" oninput="renderCashbookDebounced()"/></div>
+    <div class="fr2">
+      <div class="fi"><label><span>ದಿನಾಂಕ ಫಿಲ್ಟರ್ / Date Filter</span></label><input type="date" id="cbDateFilter" onchange="renderCashbook()"/></div>
+      <div class="fi"><label><span>&nbsp;</span></label><button class="calcbtn" style="background:#555" onclick="setV('cbDateFilter','');renderCashbook()">✕ Clear Filter</button></div>
+    </div>
+    <div class="ftabs">
+      <button class="ft active" onclick="setCBF('all',this)">ಎಲ್ಲ / All</button>
+      <button class="ft" onclick="setCBF('manual',this)">✍️ Manual</button>
+      <button class="ft" onclick="setCBF('procurement',this)">🌾 Procurement</button>
+    </div>
+    <div id="cashList"></div>
+  </div>
+
+  <!-- PAYMENT MODAL -->
+  <div class="pop" id="payPop">
+    <div class="popsh">
+      <div class="slh"></div>
+      <div class="slhdr"><h2>💳 Record Payment</h2><p id="payFarmerName"></p></div>
+      <div class="cbox">
+        <div class="crow"><span>Current Balance</span><span id="payCurBal">₹0</span></div>
+      </div>
+      <div class="fi" style="margin-top:12px"><label><span>Payment Date</span></label><input type="date" id="pay_date"/></div>
+      <div class="fi"><label><span>Payment Method</span></label>
+        <select id="pay_method" onchange="onPayMethodChange()">
+          <option value="Cash">💵 Cash</option>
+          <option value="UPI">📱 UPI</option>
+          <option value="Online Transfer">🏦 Online Transfer</option>
+        </select>
+      </div>
+
+      <!-- CASH fields -->
+      <div id="pay_cash_fields">
+        <div class="fi"><label><span>Amount</span></label><input type="number" id="pay_cash_amt" placeholder="0"/></div>
+        <div class="fi"><label><span>Paid To</span></label><input type="text" id="pay_cash_to" placeholder="Paid to"/></div>
+      </div>
+
+      <!-- UPI fields -->
+      <div id="pay_upi_fields" class="hidden">
+        <div class="fi"><label><span>Amount</span></label><input type="number" id="pay_upi_amt" placeholder="0"/></div>
+        <div class="fi"><label><span>Paid To</span></label><input type="text" id="pay_upi_to" placeholder="Paid to"/></div>
+        <div class="fi"><label><span>Mobile Number</span></label><input type="tel" id="pay_upi_mobile" placeholder="9XXXXXXXXX" maxlength="10"/></div>
+        <div class="fi"><label><span>Reference Number (Optional)</span></label><input type="text" id="pay_upi_ref" placeholder="UPI Ref / UTR"/></div>
+      </div>
+
+      <!-- ONLINE TRANSFER fields -->
+      <div id="pay_online_fields" class="hidden">
+        <div class="fi"><label><span>Account or Person Name</span></label><input type="text" id="pay_online_to" placeholder="Account / Person name"/></div>
+        <div class="fi"><label><span>Amount</span></label><input type="number" id="pay_online_amt" placeholder="0"/></div>
+        <div class="fi"><label><span>Reference Number (Optional)</span></label><input type="text" id="pay_online_ref" placeholder="Transaction Ref / UTR"/></div>
+      </div>
+
+      <div class="fi"><label><span>Remarks (Optional)</span></label><input type="text" id="pay_remarks" placeholder="Remarks"/></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <button class="slbtn cl" onclick="closePop('payPop')">Cancel</button>
+        <button class="slbtn sy" onclick="withBusy(event,'⏳ Saving...',confirmPayment)">✅ Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT RECEIPT / WHATSAPP SHARE -->
+  <div class="pop" id="payReceiptPop">
+    <div class="popsh">
+      <div class="slh"></div>
+      <div class="slhdr"><h2>✅ Payment Recorded</h2></div>
+      <div class="cbox" id="payReceiptBox"></div>
+      <div class="slact" style="margin-top:14px">
+        <button class="slbtn wa" onclick="sharePaymentWA()">📤 WhatsApp Receipt</button>
+        <button class="slbtn cl" onclick="closePop('payReceiptPop')">✕ ಮುಚ್ಚಿ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FARMER STATEMENT — OPTIONS -->
+  <div class="pop" id="stmtPop">
+    <div class="popsh">
+      <div class="slh"></div>
+      <div class="slhdr"><h2>📄 Farmer Statement</h2><p id="stmtFarmerName"></p></div>
+      <div class="fi"><label><span>ಸ್ಟೇಟ್‌ಮೆಂಟ್ ವಿಧಾನ / Statement Type</span></label>
+        <select id="stmt_mode" onchange="onStmtModeChange()">
+          <option value="range">📅 Date Range</option>
+          <option value="cycle">🔁 Settlement Cycle (Balance 0 → Next 0)</option>
+        </select>
+      </div>
+      <div id="stmt_range_fields">
+        <div class="fr2">
+          <div class="fi"><label><span>From Date</span></label><input type="date" id="stmt_from"/></div>
+          <div class="fi"><label><span>To Date</span></label><input type="date" id="stmt_to"/></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <button class="slbtn cl" onclick="closePop('stmtPop')">ರದ್ದು</button>
+        <button class="slbtn sy" onclick="generateStatement()">✅ Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FARMER STATEMENT — RESULT -->
+  <div class="pop" id="stmtResultPop">
+    <div class="popsh" style="max-height:85vh;overflow-y:auto">
+      <div class="slh"></div>
+      <div id="stmtResultBox"></div>
+      <button class="slbtn sy" style="width:100%;margin-top:14px" onclick="printStatement()">🖨️ Download / Print PDF</button>
+      <div class="slact" style="margin-top:10px">
+        <button class="slbtn wa" onclick="shareStatementWA()">📤 WhatsApp Statement</button>
+        <button class="slbtn cl" onclick="closePop('stmtResultPop')">✕ ಮುಚ್ಚಿ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL EXPENSE MODAL -->
+  <div class="pop" id="expPop">
+    <div class="popsh">
+      <div class="slh"></div>
+      <div class="slhdr"><h2 id="expModalTitle">✍️ Manual Expense</h2></div>
+      <div class="fi"><label><span>Expense Date</span></label><input type="date" id="exp_date"/></div>
+      <div class="fi"><label><span>Item Name</span></label><input type="text" id="exp_item" placeholder="Item name"/></div>
+      <div class="fi"><label><span>Amount</span></label><input type="number" id="exp_amt" placeholder="0"/></div>
+      <div class="fi"><label><span>Paid To</span></label><input type="text" id="exp_to" placeholder="Paid to"/></div>
+      <div class="fi"><label><span>Remarks (Optional)</span></label><input type="text" id="exp_rem" placeholder="Remarks"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <button class="slbtn cl" onclick="closePop('expPop')">Cancel</button>
+        <button class="slbtn sy" onclick="withBusy(event,'⏳ Saving...',saveExpense)">✅ Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="pSet">
+    <div class="sectit">⚙️ ಸೆಟ್ಟಿಂಗ್ಸ್ | Settings</div>
+    <div class="note">
+      ⚠️ <strong>Google Sheets ಸಿಂಕ್ ಗಾಗಿ:</strong> Apps Script URL ಹೊಂದಿಸಿ (Webhook). ಅದರ ನಂತರ Settings ನಲ್ಲಿ <strong>"🔄 Re-sync All"</strong> ಟ್ಯಾಪ್ ಮಾಡಿ ಎಲ್ಲ ಹಳೆ ದಾಖಲೆಗಳನ್ನು ಕಳಿಸಿ.
+    </div>
+    <div class="sban" id="sban">☁️ <span id="sbanTxt">Google Sheets ಜೋಡಿಕೆ ಹೊಂದಿಸಿ</span></div>
+    <div class="ssec">
+      <div class="sit" onclick="setWebhook()">
+        <div class="sil"><div class="sic">🔗</div><div><div class="slbl">Apps Script Webhook URL</div><div class="ssub" id="whPrev">ಹೊಂದಿಸಲಾಗಿಲ್ಲ / Not set</div></div></div>
+        <div>›</div>
+      </div>
+      <div class="sit" onclick="setSheetUrl()">
+        <div class="sil"><div class="sic">📊</div><div><div class="slbl">Google Sheet URL (for viewing)</div><div class="ssub" id="shPrev">ಹೊಂದಿಸಲಾಗಿಲ್ಲ / Not set</div></div></div>
+        <div>›</div>
+      </div>
+      <div class="sit" id="openShBtn" style="display:none" onclick="openSheet()">
+        <div class="sil"><div class="sic">↗️</div><div><div class="slbl" style="color:var(--gn)">Google Sheets ತೆರೆಯಿರಿ / Open</div><div class="ssub">View all records online</div></div></div>
+      </div>
+    </div>
+    <div class="ssec">
+      <div class="sit" onclick="showRatePop()">
+        <div class="sil"><div class="sic">💰</div><div><div class="slbl">Default Rates</div><div class="ssub">Direct: ₹<span id="dCR">2900</span> | Contract: ₹<span id="dDR">3500</span></div></div></div>
+        <div>›</div>
+      </div>
+    </div>
+    <div class="ssec">
+      <div class="sit" onclick="resetResync()">
+        <div class="sil"><div class="sic">🔄</div><div><div class="slbl" style="color:var(--br)">Re-sync All to Google Sheets</div><div class="ssub">ಎಲ್ಲ ದಾಖಲೆಗಳನ್ನು ಮತ್ತೆ ಕಳಿಸಿ</div></div></div>
+        <div>›</div>
+      </div>
+      <div class="sit" onclick="forceFetchFromSheets()">
+        <div class="sil"><div class="sic">⬇️</div><div><div class="slbl" style="color:var(--br)">Force Fetch from Google Sheets</div><div class="ssub">Local cache ಬಿಟ್ಟು, Sheets ನಿಂದ ಇತ್ತೀಚಿನ ಡೇಟಾ ಬಲವಂತವಾಗಿ ತನ್ನಿ</div></div></div>
+        <div>›</div>
+      </div>
+      <div class="sit" onclick="exportCSV()">
+        <div class="sil"><div class="sic">📥</div><div><div class="slbl">CSV Export / Download</div><div class="ssub">ಎಲ್ಲ ದಾಖಲೆಗಳನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ</div></div></div>
+        <div>📤</div>
+      </div>
+    </div>
+    <div class="ssec">
+      <div class="sit"><div class="sil"><div class="sic">📱</div><div><div class="slbl">App Version</div><div class="ssub">v8.0 | Agri-Procurement & Ledger PWA 2026</div></div></div><div style="color:var(--txs);font-size:13px"><span id="setRecCnt">0</span> records</div></div>
+    </div>
+    <!-- Rate popup -->
+    <div class="pop" id="ratePop">
+      <div class="popsh">
+        <div class="slh"></div>
+        <div class="slhdr"><h2>💰 Default Rates</h2></div>
+        <div class="fi"><label><span>Direct Cane Rate (₹/ton)</span></label><input type="number" id="s_cr"/></div>
+        <div class="fi"><label><span>Contract Cane Rate (₹/ton)</span></label><input type="number" id="s_dr"/></div>
+        <div class="fi"><label><span>Harvest Charge (₹/ton)</span></label><input type="number" id="s_hr"/></div>
+        <div class="fi"><label><span>Transport Charge (₹/ton)</span></label><input type="number" id="s_tr"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+          <button class="slbtn cl" onclick="closePop('ratePop')">ರದ್ದು</button>
+          <button class="slbtn sy" onclick="saveRates()">✅ ಉಳಿಸಿ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="ni active" onclick="goTo('pDash','')"><div class="ico">🏠</div><div>ಮುಖಪುಟ</div></button>
+    <button class="ni" onclick="goTo('pEntry','')"><div class="ico">➕</div><div>ನಮೂದು</div></button>
+    <button class="ni" onclick="goTo('pRec','')"><div class="ico">📁</div><div>ದಾಖಲೆ</div></button>
+    <button class="ni" onclick="goTo('pFarm','')"><div class="ico">👥</div><div>ರೈತರು</div></button>
+    <button class="ni" onclick="goTo('pCash','')"><div class="ico">💵</div><div>ಕ್ಯಾಶ್ ಬುಕ್</div></button>
+    <button class="ni" onclick="goTo('pSet','')"><div class="ico">⚙️</div><div>ಸೆಟ್ಟಿಂಗ್</div></button>
+  </div>
+</div>
+
+<!-- SLIP OVERLAY -->
+<div class="slov" id="slipOv"><div class="slsh" id="slipCon"></div></div>
+<!-- FARMER VIEW OVERLAY -->
+<div class="slov" id="farmViewOv">
+  <div class="slsh" style="max-height:92vh">
+    <div class="slh"></div>
+    <div class="slhdr"><h2>👁️ Farmer View</h2><p id="fvFarmerName"></p></div>
+    <div class="fr2">
+      <div class="fi"><label><span>From Date</span></label><input type="date" id="fv_from" onchange="renderFarmerViewBody()"/></div>
+      <div class="fi"><label><span>To Date</span></label><input type="date" id="fv_to" onchange="renderFarmerViewBody()"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <button class="calcbtn" style="background:#555;margin-bottom:0" onclick="setV('fv_from','');setV('fv_to','');renderFarmerViewBody()">✕ Clear Filter</button>
+      <button class="calcbtn" style="margin-bottom:0" onclick="openStatementModal(fvCtxFarmer)">📄 Statement</button>
+    </div>
+    <div id="fvBody"></div>
+    <button class="slbtn cl" style="width:100%;margin-top:12px" onclick="closeFarmerView()">✕ ಮುಚ್ಚಿ</button>
+  </div>
+</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- PRINT-ONLY STATEMENT AREA (used to generate a printable/PDF statement) -->
+<div id="printArea"></div>
+
+<script>
+// ══════════════════════════════════════
+//  APP TITLE — SINGLE SOURCE OF TRUTH
+//  This is the ONLY place that may define/set the browser tab title.
+//  Nothing else in this app should read/write document.title. This does
+//  NOT affect the text shown on-screen below the logo (that markup is
+//  untouched).
+// ══════════════════════════════════════
+const APP_TITLE = 'Agri-Procurement & Ledger PWA';
+document.title = APP_TITLE;
+
+// ══════════════════════════════════════
+//  CREDENTIALS — change here
+// ══════════════════════════════════════
+const CREDS = [
+  {email:'giricreates@gmail.com', pass:'giricreates'},
+  {email:'giricreates@gmail.com', pass:'giricreates'}
+];
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+// Google Sheets is now the single source of truth. recs/farms/cfg are an
+// in-memory mirror of the cloud, refreshed after every successful sync.
+// localStorage is used ONLY as a temporary offline cache (snj_r_cache /
+// snj_f_cache / snj_cfg) so the app still shows the last-known data if
+// there is no internet connection.
+let recs=[], farms=[], payments=[], cashbook=[], cfg={cr:2900,dr:3500,hr:350,tr:250,webhook:'',sheetUrl:''};
+let curFilter='all', curTab='ec', curCBFilter='all';
+let pendingQueue = JSON.parse(localStorage.getItem('snj_queue')||'[]');
+let cloudSyncing = false;
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+async function init(){
+  const s = JSON.parse(localStorage.getItem('snj_cfg')||'{}');
+  cfg = {...cfg,...s};
+
+  const today = todayStr();
+  ['c_date','d_date'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=today; });
+
+  document.getElementById('todayDate').textContent =
+    new Date().toLocaleDateString('kn-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Show cached data immediately (fast paint), then reconcile with the cloud.
+  loadFromCache();
+  await loadFromCloud(false);
+  flushQueue();
+}
+
+// ── CLOUD API ──────────────────────────────────────────
+// Every create / edit / delete goes through callAPI(). The Apps Script
+// always answers with the FULL fresh dataset, which we apply immediately
+// so every device converges on identical data.
+async function callAPI(action, payload){
+  if(!cfg.webhook) throw new Error('NO_WEBHOOK');
+  const res = await fetch(cfg.webhook, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoids CORS preflight
+    body: JSON.stringify({action, payload: payload||{}})
+  });
+  const data = await res.json();
+  if(!data.success) throw new Error(data.error||'API_ERROR');
+  return data;
+}
+
+async function loadFromCloud(showToast){
+  if(!cfg.webhook){ updSetDisplay(); return; }
+  try{
+    cloudSyncing=true; updSetDisplay();
+    const data = await callAPI('getAll',{});
+    applyServerSnapshot(data);
+    if(showToast) toast('✅ ಡೇಟಾ ಸಿಂಕ್ ಆಗಿದೆ / Data synced');
+  }catch(err){
+    console.warn('Cloud load failed, showing cached data:', err);
+    if(showToast) toast('❌ ಸಿಂಕ್ ಆಗಲಿಲ್ಲ — ಆಫ್‌ಲೈನ್ ಡೇಟಾ ತೋರಿಸಲಾಗುತ್ತಿದೆ');
+  }finally{
+    cloudSyncing=false; updSetDisplay();
+  }
+}
+
+function applyServerSnapshot(data){
+  if(Array.isArray(data.records)) recs = data.records;
+  if(Array.isArray(data.farmers)) farms = data.farmers;
+  if(Array.isArray(data.payments)) payments = data.payments;
+  if(Array.isArray(data.cashbook)) cashbook = data.cashbook;
+  if(data.settings){
+    cfg.cr = data.settings.cr ?? cfg.cr;
+    cfg.dr = data.settings.dr ?? cfg.dr;
+    cfg.hr = data.settings.hr ?? cfg.hr;
+    cfg.tr = data.settings.tr ?? cfg.tr;
+  }
+  saveCache();
+  applyRates(); updFarmerList(); updDash(); renderRecs(); renderFarms(); renderCashbook(); updSetDisplay();
+}
+
+function loadFromCache(){
+  recs  = JSON.parse(localStorage.getItem('snj_r_cache')||'[]');
+  farms = JSON.parse(localStorage.getItem('snj_f_cache')||'[]');
+  payments = JSON.parse(localStorage.getItem('snj_p_cache')||'[]');
+  cashbook = JSON.parse(localStorage.getItem('snj_cb_cache')||'[]');
+  applyRates(); updFarmerList(); updDash(); renderRecs(); renderFarms(); renderCashbook(); updSetDisplay();
+}
+
+// Anything that fails to reach the cloud (offline) is queued here and
+// retried automatically once connectivity returns.
+function queueChange(action,payload){
+  pendingQueue.push({action,payload,ts:Date.now()});
+  localStorage.setItem('snj_queue',JSON.stringify(pendingQueue));
+  updSetDisplay();
+}
+async function flushQueue(){
+  if(!pendingQueue.length || !navigator.onLine || !cfg.webhook) return;
+  const queue=[...pendingQueue];
+  pendingQueue=[];
+  localStorage.setItem('snj_queue','[]');
+  let lastSnapshot=null;
+  for(const item of queue){
+    try{ lastSnapshot = await callAPI(item.action,item.payload); }
+    catch(e){ pendingQueue.push(item); }
+  }
+  localStorage.setItem('snj_queue',JSON.stringify(pendingQueue));
+  if(lastSnapshot) applyServerSnapshot(lastSnapshot);
+  updSetDisplay();
+}
+window.addEventListener('online', flushQueue);
+setInterval(flushQueue, 30000);
+
+// ══════════════════════════════════════
+//  LOGIN / LOGOUT
+// ══════════════════════════════════════
+async function doLogin(){
+  const e=document.getElementById('lemail').value.trim().toLowerCase();
+  const p=document.getElementById('lpass').value;
+  if(CREDS.some(c=>c.email===e&&c.pass===p)){
+    document.getElementById('LS').style.display='none';
+    document.getElementById('AS').style.display='flex';
+    document.getElementById('AS').style.flexDirection='column';
+    toast('☁️ Google Sheets ನಿಂದ ಡೇಟಾ ಲೋಡ್ ಆಗುತ್ತಿದೆ...');
+    await init();
+  } else {
+    document.getElementById('lerr').style.display='block';
+  }
+}
+function doLogout(){
+  if(!confirm('ಲಾಗ್‌ಔಟ್ ಮಾಡಬೇಕೇ?')) return;
+  document.getElementById('LS').style.display='flex';
+  document.getElementById('AS').style.display='none';
+  document.getElementById('lemail').value='';
+  document.getElementById('lpass').value='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter') doLogin();});
+
+// ══════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════
+const PTITLES={pDash:'📊 ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',pEntry:'➕ ಹೊಸ ನಮೂದು',pRec:'📁 ದಾಖಲೆಗಳು',pFarm:'👥 ರೈತರು',pCash:'💵 ಕ್ಯಾಶ್ ಬುಕ್',pSet:'⚙️ ಸೆಟ್ಟಿಂಗ್ಸ್'};
+const NIDX   ={pDash:0,pEntry:1,pRec:2,pFarm:3,pCash:4,pSet:5};
+function goTo(pid, sub){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById(pid).classList.add('active');
+  document.getElementById('ptitle').textContent = PTITLES[pid]||'';
+  const ni=document.querySelectorAll('.ni');
+  if(NIDX[pid]!==undefined) ni[NIDX[pid]].classList.add('active');
+  if(sub==='ec') switchTab('ec');
+  if(sub==='ed') switchTab('ed');
+  if(pid==='pRec') renderRecs();
+  if(pid==='pFarm') renderFarms();
+  if(pid==='pCash') renderCashbook();
+  if(pid==='pSet') updSetDisplay();
+  if(pid==='pDash') updDash();
+}
+function switchTab(t){
+  curTab=t;
+  document.getElementById('ec').classList.toggle('hidden',t!=='ec');
+  document.getElementById('ed').classList.toggle('hidden',t!=='ed');
+  document.getElementById('tabC').classList.toggle('active',t==='ec');
+  document.getElementById('tabD').classList.toggle('active',t==='ed');
+}
+
+// ══════════════════════════════════════
+//  CALCULATIONS
+// ══════════════════════════════════════
+// Debounce: used for search inputs so typing quickly doesn't re-render
+// the full list on every single keystroke (same end result, fewer renders).
+function debounce(fn,ms){
+  let t;
+  return function(...args){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args),ms); };
+}
+const renderRecsDebounced=debounce(()=>renderRecs(),150);
+const renderFarmsDebounced=debounce(()=>renderFarms(),150);
+const renderCashbookDebounced=debounce(()=>renderCashbook(),150);
+
+// Local calendar-day string (YYYY-MM-DD) using the DEVICE's own timezone.
+// IMPORTANT: new Date().toISOString() gives the UTC date, which is a
+// DIFFERENT calendar day than IST from 12:00am-5:29am (UTC is 5:30 behind
+// IST). That mismatch used to make the Dashboard's "Today" totals show ₹0
+// right after midnight IST even though records were saved "today" -- the
+// record's date field (set via the native date picker, which always shows
+// the device's real today) no longer matched the dashboard's UTC-based
+// "today" string. Every "what is today's date" check now goes through this
+// single local-timezone helper instead.
+function todayStr(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+// ── Date-only display formatting (DD/MM/YYYY) ──────────────────────
+// All procurement/payment/expense dates are stored internally as plain
+// 'YYYY-MM-DD' calendar-day strings (see todayStr() above) so sorting,
+// filtering, and <input type="date"> binding keep working exactly as
+// before. This helper ONLY changes how such a string is *displayed* to
+// the user — it never uses new Date()/toISOString()/any UTC conversion,
+// so the calendar date shown always matches the date stored in the
+// Sheet exactly, with no timezone shift.
+// It also defensively handles the case where the backend accidentally
+// returns a full ISO timestamp (e.g. '2026-07-05T18:30:00.000Z') by
+// simply reading the leading YYYY-MM-DD digits out of the string —
+// never re-parsing it as a Date object.
+function fmtDMY(dateStr){
+  if(!dateStr) return '';
+  const s=String(dateStr);
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return m[3]+'/'+m[2]+'/'+m[1];
+  return s; // unrecognized format — show as-is rather than guess/convert
+}
+function n(id){const v=parseFloat(document.getElementById(id)?.value||0);return isNaN(v)?0:v;}
+function setT(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function setV(id,v){const el=document.getElementById(id);if(el)el.value=v;}
+function fmtINR(v){return '₹'+Math.round(v).toLocaleString('en-IN');}
+function fmtKg(v){return Math.round(v).toLocaleString('en-IN')+' Kg';}
+
+function cC(){
+  const g=n('c_gross'),t=n('c_tare'),d=n('c_ded'),cr=n('c_cr'),hr=n('c_hr'),tr=n('c_tr');
+  const cane=Math.max(0,g-t), dedA=cane*d/100, net=Math.max(0,cane-dedA), ton=net/1000;
+  const cA=ton*cr, hA=ton*hr, tA=ton*tr, tot=cA+hA+tA;
+  setT('cc_cane',fmtKg(cane)); setT('cc_ded',fmtKg(dedA));
+  setT('cc_net',fmtKg(net));   setT('cc_ton',ton.toFixed(3)+' T');
+  setT('cc_ca',fmtINR(cA));    setT('cc_ha',fmtINR(hA));
+  setT('cc_ta',fmtINR(tA));    setT('cc_tot',fmtINR(tot));
+  setV('c_bal',Math.round(tot));
+  const bel=document.getElementById('c_bal');
+  if(bel) bel.style.color='#C0392B';
+  // warn if gross<=tare
+  ['c_gross','c_tare'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.borderColor=(g>0&&t>0&&g<=t)?'#C0392B':'';
+  });
+}
+function cD(){
+  const g=n('d_gross'),t=n('d_tare'),d=n('d_ded'),cr=n('d_cr');
+  const cane=Math.max(0,g-t), dedA=cane*d/100, net=Math.max(0,cane-dedA), ton=net/1000;
+  const cA=ton*cr;
+  setT('dc_cane',fmtKg(cane)); setT('dc_ded',fmtKg(dedA));
+  setT('dc_net',fmtKg(net));   setT('dc_ton',ton.toFixed(3)+' T');
+  setT('dc_ca',fmtINR(cA));
+  setV('d_bal',Math.round(cA));
+  const bel=document.getElementById('d_bal');
+  if(bel) bel.style.color='#C0392B';
+}
+
+// Auto-watcher
+let _pc='', _pd='';
+setInterval(()=>{
+  const cs=['c_gross','c_tare','c_ded','c_cr','c_hr','c_tr'].map(id=>document.getElementById(id)?.value||'').join('|');
+  if(cs!==_pc){_pc=cs;cC();}
+  const ds=['d_gross','d_tare','d_ded','d_cr'].map(id=>document.getElementById(id)?.value||'').join('|');
+  if(ds!==_pd){_pd=ds;cD();}
+},400);
+
+// ══════════════════════════════════════
+//  BUSY / LOADING HELPER
+//  Wraps a button + an async action so the button is disabled and shows
+//  a small spinner while the action runs, and re-enables itself when
+//  done — this prevents duplicate submissions from double-taps and gives
+//  clearer feedback during network calls, without changing what the
+//  action itself does.
+// ══════════════════════════════════════
+async function withBusy(btnOrEvent, busyLabel, fn){
+  const btn = (btnOrEvent && btnOrEvent.target) ? btnOrEvent.target.closest('button') : btnOrEvent;
+  if(btn){
+    if(btn.dataset.busy==='1') return; // already running — ignore duplicate tap
+    btn.dataset.busy='1';
+    btn.dataset.origLabel = btn.dataset.origLabel || btn.innerHTML;
+    btn.disabled = true;
+    if(busyLabel) btn.innerHTML = '<span class="spin"></span>'+busyLabel;
+  }
+  try{
+    return await fn();
+  } finally {
+    if(btn){
+      btn.disabled = false;
+      btn.innerHTML = btn.dataset.origLabel;
+      delete btn.dataset.busy;
+    }
+  }
+}
+
+// ══════════════════════════════════════
+//  SUBMIT
+// ══════════════════════════════════════
+// Land Owner Name is stored ONLY as an informational column on the
+// procurement record. It is NEVER combined with the farmer name — every
+// balance, payment, search and report groups strictly by Farmer Name.
+async function submitC(){
+  const farmerBase=document.getElementById('c_farmer').value.trim();
+  const landOwner=document.getElementById('c_landowner').value.trim();
+  const weighSlipNo=document.getElementById('c_wslip').value.trim();
+  if(!farmerBase){toast('⚠️ ರೈತರ ಹೆಸರು ನಮೂದಿಸಿ');return;}
+  if(!weighSlipNo){toast('⚠️ ತೂಕ ಚೀಟಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ / Enter Weighment Slip Number');return;}
+  if(!n('c_gross')||!n('c_tare')){toast('⚠️ ತೂಕ ನಮೂದಿಸಿ');return;}
+  if(n('c_gross')<=n('c_tare')){toast('⚠️ Gross ತೂಕ Tare ಗಿಂತ ಹೆಚ್ಚಿರಬೇಕು');return;}
+  const farmer=farmerBase;
+  const g=n('c_gross'),t=n('c_tare'),d=n('c_ded'),cr=n('c_cr'),hr=n('c_hr'),tr=n('c_tr');
+  const cane=g-t,dedA=cane*d/100,net=cane-dedA,ton=net/1000;
+  const cA=ton*cr,hA=ton*hr,tA=ton*tr,tot=cA+hA+tA;
+  const rec={id:'r'+Date.now(),weighSlipNo,type:'contract',
+    date:document.getElementById('c_date').value,
+    farmer,farmerBase,landOwner:landOwner||'-',village:document.getElementById('c_village').value,
+    mobile:document.getElementById('c_mobile').value,
+    vehicle:document.getElementById('c_vehicle').value,
+    gross:g,tare:t,deduction:d,caneWt:cane,dedAmt:dedA,netCane:net,netTon:ton,
+    caneRate:cr,harvestRate:hr,transportRate:tr,
+    caneAmt:cA,harAmt:hA,traAmt:tA,total:tot,advance:0,balance:tot,
+    synced:false,createdAt:new Date().toISOString()};
+  recs.unshift(rec); saveCache(); renderRecs(); updDash();
+  autoFarm(farmer,rec.village,rec.mobile);
+  showSlip(rec); resetC();
+  await pushRecord(rec);
+}
+async function submitD(){
+  const farmerBase=document.getElementById('d_farmer').value.trim();
+  const landOwner=document.getElementById('d_landowner').value.trim();
+  const weighSlipNo=document.getElementById('d_wslip').value.trim();
+  if(!farmerBase){toast('⚠️ ರೈತರ ಹೆಸರು ನಮೂದಿಸಿ');return;}
+  if(!weighSlipNo){toast('⚠️ ತೂಕ ಚೀಟಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ / Enter Weighment Slip Number');return;}
+  if(!n('d_gross')||!n('d_tare')){toast('⚠️ ತೂಕ ನಮೂದಿಸಿ');return;}
+  if(n('d_gross')<=n('d_tare')){toast('⚠️ Gross ತೂಕ Tare ಗಿಂತ ಹೆಚ್ಚಿರಬೇಕು');return;}
+  const farmer=farmerBase;
+  const g=n('d_gross'),t=n('d_tare'),d=n('d_ded'),cr=n('d_cr');
+  const cane=g-t,dedA=cane*d/100,net=cane-dedA,ton=net/1000,cA=ton*cr;
+  const rec={id:'r'+Date.now(),weighSlipNo,type:'direct',
+    date:document.getElementById('d_date').value,
+    farmer,farmerBase,landOwner:landOwner||'-',village:document.getElementById('d_village').value,
+    mobile:document.getElementById('d_mobile').value,
+    vehicle:document.getElementById('d_vehicle').value,
+    gross:g,tare:t,deduction:d,caneWt:cane,dedAmt:dedA,netCane:net,netTon:ton,
+    caneRate:cr,harvestRate:0,transportRate:0,
+    caneAmt:cA,harAmt:0,traAmt:0,total:cA,advance:0,balance:cA,
+    synced:false,createdAt:new Date().toISOString()};
+  recs.unshift(rec); saveCache(); renderRecs(); updDash();
+  autoFarm(farmer,rec.village,rec.mobile);
+  showSlip(rec); resetD();
+  await pushRecord(rec);
+}
+
+// Sends a newly created / edited record to Google Sheets immediately.
+// On success the ENTIRE app data is refreshed from the server response
+// (so the real slip number + every other device's data comes back).
+// On failure (offline) the record stays in the queue and is retried
+// automatically — the UI keeps the temporary local copy in the meantime.
+async function pushRecord(rec){
+  try{
+    const snapshot = await callAPI('saveRecord', rec);
+    applyServerSnapshot(snapshot);
+    toast('✅ Google Sheets ಗೆ ಸಿಂಕ್ ಆಗಿದೆ!');
+    refreshOpenSlipFor(rec.id, snapshot.records);
+  }catch(err){
+    queueChange('saveRecord', rec);
+    toast('⚠️ ಆಫ್‌ಲೈನ್ — ಇಂಟರ್ನೆಟ್ ಬಂದ ಕೂಡಲೇ ಸಿಂಕ್ ಆಗುತ್ತದೆ');
+  }
+}
+
+// If the receipt overlay is still open for the record we just synced,
+// refresh it in place so the official slip number shows immediately.
+function refreshOpenSlipFor(id, freshRecords){
+  if(!document.getElementById('slipOv').classList.contains('open')) return;
+  const updated=(freshRecords||recs).find(r=>String(r.id)===String(id));
+  if(updated) showSlip(updated);
+}
+function resetC(){
+  const t=todayStr();
+  ['c_farmer','c_landowner','c_wslip','c_village','c_mobile','c_vehicle','c_gross','c_tare'].forEach(id=>setV(id,''));
+  setV('c_date',t);setV('c_ded',1);setV('c_bal','');cC();
+}
+function resetD(){
+  const t=todayStr();
+  ['d_farmer','d_landowner','d_wslip','d_village','d_mobile','d_vehicle','d_gross','d_tare'].forEach(id=>setV(id,''));
+  setV('d_date',t);setV('d_ded',1);setV('d_bal','');cD();
+}
+
+// ══════════════════════════════════════
+//  SLIP
+// ══════════════════════════════════════
+function showSlip(rec){
+  if(!rec){return;}
+  const isC=rec.type==='contract';
+  document.getElementById('slipCon').innerHTML=`
+    <div class="slh"></div>
+    <div class="slhdr"><img class="slhdrimg" src="icons/logo.png" alt="Agri-Procurement & Ledger PWA"/><h2>Agri-Procurement & Ledger PWA</h2><p>Cane Purchase Receipt | ಕಬ್ಬು ಖರೀದಿ ರಸೀದಿ</p></div>
+    <div class="slnum">📋 ${rec.weighSlipNo||'-'}</div>
+    <table class="sltbl">
+      <tr><td>ದಿನಾಂಕ / Date</td><td>${fmtDMY(rec.date)}</td></tr>
+      <tr><td>ತೂಕ ಚೀಟಿ ಸಂಖ್ಯೆ / Weighment Slip No</td><td>${rec.weighSlipNo||'-'}</td></tr>
+      <tr><td>ರೈತರು / Farmer</td><td><strong>${rec.farmer}</strong></td></tr>
+      ${rec.landOwner&&rec.landOwner!=='-'?`<tr><td>ಜಮೀನಿನ ಮಾಲೀಕರು / Land Owner</td><td>${rec.landOwner}</td></tr>`:''}
+      <tr><td>ಗ್ರಾಮ / Village</td><td>${rec.village||'-'}</td></tr>
+      <tr><td>ಮೊಬೈಲ್ / Mobile</td><td>${rec.mobile||'-'}</td></tr>
+      <tr><td>ವಾಹನ / Vehicle</td><td>${rec.vehicle||'-'}</td></tr>
+      <tr><td>Gross Wt</td><td>${rec.gross.toLocaleString('en-IN')} Kg</td></tr>
+      <tr><td>Tare Wt</td><td>${rec.tare.toLocaleString('en-IN')} Kg</td></tr>
+      <tr><td>Cane Wt</td><td>${Math.round(rec.caneWt).toLocaleString('en-IN')} Kg</td></tr>
+      <tr><td>Deduction (${rec.deduction}%)</td><td>${Math.round(rec.dedAmt).toLocaleString('en-IN')} Kg</td></tr>
+      <tr><td>Net Cane</td><td>${Math.round(rec.netCane).toLocaleString('en-IN')} Kg</td></tr>
+      <tr><td>Net Ton</td><td>${rec.netTon.toFixed(3)} T</td></tr>
+      <tr><td>Cane Rate</td><td>₹${rec.caneRate}/ton</td></tr>
+      <tr><td>Cane Amount</td><td>₹${Math.round(rec.caneAmt).toLocaleString('en-IN')}</td></tr>
+      ${isC?`<tr><td>Harvest (₹${rec.harvestRate}/t)</td><td>₹${Math.round(rec.harAmt).toLocaleString('en-IN')}</td></tr>
+      <tr><td>Transport (₹${rec.transportRate}/t)</td><td>₹${Math.round(rec.traAmt).toLocaleString('en-IN')}</td></tr>`:''}
+      <tr><td class="sltot">ಒಟ್ಟು / Total</td><td class="sltot">₹${Math.round(rec.total).toLocaleString('en-IN')}</td></tr>
+      <tr><td><strong>ಬಾಕಿ / Outstanding Balance</strong></td><td><strong style="color:#C0392B">₹${Math.round(rec.balance).toLocaleString('en-IN')}</strong></td></tr>
+    </table>
+    <div class="slact">
+      <button class="slbtn wa" onclick="shareWA(${rec.id})">📤 WhatsApp</button>
+      <button class="slbtn sy" onclick="syncOne(${rec.id})">☁️ Sync</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <button class="slbtn cl" onclick="closeSlip()">✕ ಮುಚ್ಚಿ</button>
+      <button class="slbtn dl" onclick="delRec(${rec.id})">🗑️ ಅಳಿಸಿ / Delete</button>
+    </div>`;
+  document.getElementById('slipOv').classList.add('open'); lockScroll();
+}
+function closeSlip(){document.getElementById('slipOv').classList.remove('open');unlockScroll();}
+document.getElementById('slipOv').addEventListener('click',e=>{if(e.target===document.getElementById('slipOv'))closeSlip();});
+
+function shareWA(id){
+  const r=recs.find(x=>x.id===id); if(!r) return;
+  const isC=r.type==='contract';
+  const msg=`🌾 *Agri-Procurement & Ledger PWA*\nCane Purchase Receipt\n\n🧾 Weighment Slip: *${r.weighSlipNo||'-'}*\n📅 Date: ${fmtDMY(r.date)}\n👨‍🌾 Farmer: *${r.farmer}*\n🏘️ Village: ${r.village||'-'}\n🚛 Vehicle: ${r.vehicle||'-'}\n\n⚖️ Gross: ${r.gross}Kg | Tare: ${r.tare}Kg\nNet Cane: ${Math.round(r.netCane)}Kg (${r.netTon.toFixed(3)}T)\n\n💰 Cane: ₹${Math.round(r.caneAmt).toLocaleString('en-IN')}\n${isC?`🌾 Harvest: ₹${Math.round(r.harAmt).toLocaleString('en-IN')}\n🚚 Transport: ₹${Math.round(r.traAmt).toLocaleString('en-IN')}\n`:''}*Total: ₹${Math.round(r.total).toLocaleString('en-IN')}*\n*Outstanding Balance: ₹${Math.round(r.balance).toLocaleString('en-IN')}*`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg));
+}
+
+// ══════════════════════════════════════
+//  DELETE ONE RECORD
+// ══════════════════════════════════════
+async function delRec(id){
+  const r=recs.find(x=>x.id===id); if(!r) return;
+  if(!confirm(`"${r.farmer}" (${r.weighSlipNo||'-'})\n\nಈ ದಾಖಲೆ ಅಳಿಸಬೇಕೇ?\nDelete this record?`)) return;
+  recs=recs.filter(x=>x.id!==id);
+  cashbook=cashbook.filter(c=>c.procId!==id); // linked auto cash-book entry goes with it
+  saveCache(); updDash(); renderRecs(); renderCashbook(); closeSlip();
+  toast('🗑️ ದಾಖಲೆ ಅಳಿಸಲಾಗಿದೆ / Deleted');
+  try{
+    const snapshot = await callAPI('deleteRecord',{id});
+    applyServerSnapshot(snapshot);
+  }catch(err){
+    queueChange('deleteRecord',{id});
+  }
+}
+
+// ══════════════════════════════════════
+//  RECORDS LIST
+// ══════════════════════════════════════
+function setF(f,el){
+  curFilter=f;
+  document.querySelectorAll('.ft').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderRecs();
+}
+function renderRecs(){
+  const s=(document.getElementById('srch')?.value||'').toLowerCase();
+  let list=recs.filter(r=>{
+    if(curFilter==='contract') return r.type==='contract';
+    if(curFilter==='direct')   return r.type==='direct';
+    if(curFilter==='pending')  return !r.synced;
+    return true;
+  }).filter(r=>!s||r.farmer.toLowerCase().includes(s)||(r.village||'').toLowerCase().includes(s)||(r.weighSlipNo||'').toLowerCase().includes(s));
+
+  const c=document.getElementById('recList');
+  if(!list.length){
+    c.innerHTML=`<div class="empty"><div class="ei">📭</div><p>ಯಾವುದೇ ದಾಖಲೆಗಳು ಇಲ್ಲ<br>No records found</p></div>`;
+    return;
+  }
+  c.innerHTML=list.map(r=>`
+    <div class="rc">
+      <div class="rtop" onclick="showSlip(recs.find(x=>x.id===${r.id}))" style="cursor:pointer;margin-bottom:8px">
+        <div class="rname">${r.farmer}</div>
+        <div class="rtype ${r.type}">${r.type==='contract'?'📋 Direct':'🧑‍🌾 Contract'}</div>
+      </div>
+      <div class="rdet" onclick="showSlip(recs.find(x=>x.id===${r.id}))" style="cursor:pointer">
+        <div class="rd2"><strong>${r.weighSlipNo||'-'}</strong>Weighment Slip</div>
+        <div class="rd2"><strong>${fmtDMY(r.date)}</strong>Date</div>
+        <div class="rd2"><strong>${r.netTon.toFixed(2)}T</strong>Net Cane</div>
+      </div>
+      <div class="rbot">
+        <div onclick="showSlip(recs.find(x=>x.id===${r.id}))" style="cursor:pointer">
+          <div style="font-size:11px;color:var(--txs)">Total / Balance</div>
+          <div style="font-size:13px;font-weight:600">₹${Math.round(r.total).toLocaleString('en-IN')} / <span class="rbal ${r.balance<0?'neg':''}">₹${Math.round(r.balance).toLocaleString('en-IN')}</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div style="font-size:10px;font-weight:600;${r.synced?'color:#2D6A2D':'color:#D4A017'}">${r.synced?'✅ Synced':'☁️ Pending'}</div>
+          <button class="delbtn" onclick="event.stopPropagation();delRec(${r.id})">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════
+function updDash(){
+  const today=todayStr();
+  const thisMonth=today.slice(0,7);
+
+  // Single pass over records for today's totals + pending count + month total,
+  // instead of separate .filter() scans over the full array for each stat.
+  let ton=0, pendCount=0, todayProc=0, monthProc=0;
+  for(const r of recs){
+    if(!r.synced) pendCount++;
+    if(r.date===today){ ton+=r.netTon; todayProc+=Number(r.total)||0; }
+    if((r.date||'').slice(0,7)===thisMonth) monthProc+=Number(r.total)||0;
+  }
+  let todayPay=0, monthPay=0;
+  for(const p of payments){
+    const amt=Number(p.amount)||0;
+    if(p.date===today) todayPay+=amt;
+    if((p.date||'').slice(0,7)===thisMonth) monthPay+=amt;
+  }
+  let todayExp=0, monthExp=0;
+  for(const cb of cashbook){
+    if(cb.txType!=='manual') continue; // manual entries = expenses (procurement payments already counted via payments above)
+    const amt=Number(cb.amount)||0;
+    if(cb.date===today) todayExp+=amt;
+    if((cb.date||'').slice(0,7)===thisMonth) monthExp+=amt;
+  }
+
+  document.getElementById('stTotal').textContent=recs.length;
+  document.getElementById('stCane').textContent=ton.toFixed(1)+'T';
+  document.getElementById('stFarm').textContent=farms.length;
+  document.getElementById('stPend').textContent=pendCount;
+
+  setT('mSumProc',fmtINR(monthProc));
+  setT('mSumPay',fmtINR(monthPay));
+  setT('mSumExp',fmtINR(monthExp));
+  setT('mSumNet',fmtINR(monthProc-monthPay-monthExp));
+
+  const c=document.getElementById('recentList');
+  const recent=recs.slice(0,5);
+  if(!recent.length){
+    c.innerHTML=`<div class="empty"><div class="ei">📭</div><p>ಇನ್ನೂ ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ<br>No records yet</p></div>`;
+    return;
+  }
+  c.innerHTML=recent.map(r=>`
+    <div class="rc" onclick="showSlip(recs.find(x=>x.id===${r.id}))" style="cursor:pointer">
+      <div class="rtop">
+        <div class="rname">${r.farmer}</div>
+        <div class="rtype ${r.type}">${r.type==='contract'?'📋 Direct':'🧑‍🌾 Contract'}</div>
+      </div>
+      <div class="rdet">
+        <div class="rd2"><strong>${r.weighSlipNo||'-'}</strong>Weighment Slip</div>
+        <div class="rd2"><strong>${fmtDMY(r.date)}</strong>Date</div>
+        <div class="rd2"><strong>${r.netTon.toFixed(2)}T</strong>Cane</div>
+      </div>
+      <div class="rbot">
+        <span style="font-size:12px;color:var(--txs)">Balance:</span>
+        <span class="rbal ${r.balance<0?'neg':''}">₹${Math.round(r.balance).toLocaleString('en-IN')}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+//  FARMERS
+// ══════════════════════════════════════
+async function addFarmer(){
+  const name=document.getElementById('fn_n').value.trim();
+  if(!name){toast('⚠️ ಹೆಸರು ನಮೂದಿಸಿ');return;}
+  if(farms.find(f=>f.name.toLowerCase()===name.toLowerCase())){toast('⚠️ ರೈತ ಈಗಾಗಲೇ ಇದ್ದಾರೆ');return;}
+  const f={id:'f'+Date.now(),name,village:document.getElementById('fn_v').value.trim(),mobile:document.getElementById('fn_m').value.trim()};
+  farms.push(f); saveCache(); ['fn_n','fn_v','fn_m'].forEach(id=>setV(id,'')); renderFarms(); updFarmerList();
+  toast('✅ ರೈತ ಸೇರಿಸಲಾಗಿದೆ');
+  try{ const snapshot=await callAPI('saveFarmer',f); applyServerSnapshot(snapshot); }
+  catch(err){ queueChange('saveFarmer',f); }
+}
+function autoFarm(name,village,mobile){
+  // Local optimistic add only — the Apps Script also auto-adds the farmer
+  // server-side when saveRecord runs, so this just keeps the on-screen
+  // farmer list current while the record sync is still in flight.
+  if(!farms.find(f=>f.name.toLowerCase()===name.toLowerCase())){
+    farms.push({id:'f'+Date.now(),name,village:village||'',mobile:mobile||''});
+    saveCache(); updFarmerList();
+  }
+}
+// Outstanding balance for a farmer (grouped strictly by Farmer Name —
+// Land Owner Name is never part of this identity) = total procurement
+// amount across all their records, minus every payment recorded against
+// them via Record Payment. Procurement amounts/history are never
+// modified — only this derived value.
+function farmerBalance(name){
+  const recBal = recs.filter(r=>r.farmer===name).reduce((a,r)=>a+Number(r.total),0);
+  const paid   = payments.filter(p=>p.farmer===name).reduce((a,p)=>a+Number(p.amount),0);
+  return recBal - paid;
+}
+
+// ══════════════════════════════════════
+//  FARMER TIMELINE (shared by Statement + Farmer View)
+//  Merges a farmer's procurement entries and payments into one
+//  chronologically ordered list, each carrying its own running
+//  balance contribution (procurement = debit/+, payment = credit/-).
+// ══════════════════════════════════════
+function tsFromId(id){
+  const m=String(id).match(/\d+/);
+  return m ? parseInt(m[0],10) : 0;
+}
+function farmerTimeline(name){
+  const items=[];
+  recs.filter(r=>r.farmer===name).forEach(r=>items.push({
+    kind:'procurement', date:r.date||'', ts:tsFromId(r.id),
+    weighSlipNo:r.weighSlipNo||'-', landOwner:r.landOwner&&r.landOwner!=='-'?r.landOwner:'',
+    type:r.type, debit:Number(r.total)||0, credit:0, ref:r
+  }));
+  payments.filter(p=>p.farmer===name).forEach(p=>items.push({
+    kind:'payment', date:p.date||'', ts:tsFromId(p.id),
+    method:p.method||'', paidTo:p.paidTo||'', mobile:p.mobile||'', refNo:p.refNo||'', remarks:p.remarks||'',
+    debit:0, credit:Number(p.amount)||0, ref:p
+  }));
+  items.sort((a,b)=> (a.date||'').localeCompare(b.date||'') || (a.ts-b.ts));
+  let bal=0;
+  items.forEach(it=>{ bal += it.debit - it.credit; it.balance=bal; });
+  return items;
+}
+
+// ══════════════════════════════════════
+//  FARMER STATEMENT
+// ══════════════════════════════════════
+let stmtCtxFarmer=null, lastStatement=null;
+function openStatementModal(name){
+  stmtCtxFarmer=name;
+  document.getElementById('stmtFarmerName').textContent=name;
+  setV('stmt_mode','range'); setV('stmt_from',''); setV('stmt_to','');
+  onStmtModeChange();
+  document.getElementById('stmtPop').classList.add('open'); lockScroll();
+}
+function onStmtModeChange(){
+  const m=document.getElementById('stmt_mode').value;
+  document.getElementById('stmt_range_fields').classList.toggle('hidden', m!=='range');
+}
+function generateStatement(){
+  const name=stmtCtxFarmer; if(!name) return;
+  const mode=document.getElementById('stmt_mode').value;
+  const all=farmerTimeline(name);
+  let lines=[], openingBal=0, periodLabel='';
+
+  if(mode==='range'){
+    const from=document.getElementById('stmt_from').value;
+    const to=document.getElementById('stmt_to').value;
+    if(!from||!to){toast('⚠️ From Date ಮತ್ತು To Date ಆಯ್ಕೆಮಾಡಿ');return;}
+    // Opening balance = running balance of everything strictly before "from"
+    const before=all.filter(it=>it.date<from);
+    openingBal = before.length ? before[before.length-1].balance : 0;
+    lines = all.filter(it=>it.date>=from && it.date<=to);
+    periodLabel = fmtDMY(from)+' to '+fmtDMY(to);
+  } else {
+    // Settlement Cycle: From the point Balance was last 0, to the next
+    // point Balance returns to 0 (or the latest entry if the cycle is
+    // still open / not yet settled back to zero).
+    if(!all.length){toast('⚠️ ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ / No history for this farmer');return;}
+    let startIdx=0;
+    for(let i=all.length-1;i>=0;i--){
+      if(Math.round(all[i].balance)===0){ startIdx=i+1; break; }
+    }
+    let endIdx=all.length-1;
+    for(let i=startIdx;i<all.length;i++){
+      if(Math.round(all[i].balance)===0){ endIdx=i; break; }
+    }
+    openingBal = startIdx>0 ? all[startIdx-1].balance : 0;
+    lines = all.slice(startIdx, endIdx+1);
+    periodLabel = lines.length ? (fmtDMY(lines[0].date)+' to '+fmtDMY(lines[lines.length-1].date)+' (Settlement Cycle)') : 'Settlement Cycle';
+  }
+
+  const totalDebit  = lines.reduce((a,l)=>a+l.debit,0);
+  const totalCredit = lines.reduce((a,l)=>a+l.credit,0);
+  const closingBal  = openingBal + totalDebit - totalCredit;
+
+  // Farmer profile info (village/mobile) for the statement header —
+  // fall back to the most recent procurement record if the Farmers
+  // sheet profile doesn't have it filled in.
+  const fObj = farms.find(f=>f.name===name) || {};
+  const lastRec = [...recs].filter(r=>r.farmer===name).sort((a,b)=>tsFromId(b.id)-tsFromId(a.id))[0];
+  const village = fObj.village || (lastRec && lastRec.village) || '-';
+  const mobile  = fObj.mobile  || (lastRec && lastRec.mobile)  || '-';
+  const generatedAt = new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  lastStatement = {farmer:name, village, mobile, periodLabel, generatedAt, openingBal, lines, totalDebit, totalCredit, closingBal};
+  renderStatement(lastStatement);
+  closePop('stmtPop');
+  document.getElementById('stmtResultPop').classList.add('open'); lockScroll();
+}
+
+// Builds the shared statement header markup — identical across the
+// in-app view, the printable/PDF page, and (as plain text) WhatsApp.
+function statementHeaderHTML(s){
+  return `<div class="stmthdr">
+    <img src="icons/logo.png" alt="Agri-Procurement & Ledger PWA"/>
+    <div class="cn">Agri-Procurement & Ledger PWA</div>
+    <div class="st">FARMER STATEMENT</div>
+    <div class="stmtmeta">
+      <div><b>Farmer:</b> ${s.farmer}</div>
+      <div><b>Village:</b> ${s.village}</div>
+      <div><b>Mobile:</b> ${s.mobile}</div>
+      <div><b>Statement Period:</b> ${s.periodLabel}</div>
+      <div><b>Generated:</b> ${s.generatedAt}</div>
+    </div>
+  </div>`;
+}
+function procurementRowsHTML(lines){
+  const rows = lines.filter(l=>l.kind==='procurement').map(l=>{
+    const r=l.ref;
+    return `<tr>
+      <td>${fmtDMY(l.date)}</td>
+      <td>${l.weighSlipNo||'-'}</td>
+      <td>${r.gross.toLocaleString('en-IN')}</td>
+      <td>${r.tare.toLocaleString('en-IN')}</td>
+      <td>${Math.round(r.caneWt).toLocaleString('en-IN')}</td>
+      <td>${r.deduction}%</td>
+      <td>${Math.round(r.dedAmt).toLocaleString('en-IN')}</td>
+      <td>${Math.round(r.netCane).toLocaleString('en-IN')}</td>
+      <td>₹${r.caneRate}</td>
+      <td>₹${Math.round(l.debit).toLocaleString('en-IN')}</td>
+      <td>${l.landOwner||'-'}</td>
+    </tr>`;
+  }).join('');
+  return rows;
+}
+function paymentRowsHTML(lines){
+  const rows = lines.filter(l=>l.kind==='payment').map(l=>`<tr>
+      <td>${fmtDMY(l.date)}</td>
+      <td>${l.method||'-'}</td>
+      <td>${l.paidTo||'-'}</td>
+      <td>₹${Math.round(l.credit).toLocaleString('en-IN')}</td>
+      <td>${l.refNo||'-'}</td>
+      <td>${l.remarks||'-'}</td>
+    </tr>`).join('');
+  return rows;
+}
+function statementBodyHTML(s){
+  const procRows=procurementRowsHTML(s.lines);
+  const payRows=paymentRowsHTML(s.lines);
+  return `
+    <div class="cbox">
+      <div class="crow"><span>ಆರಂಭಿಕ ಬಾಕಿ / Opening Balance</span><span>₹${Math.round(s.openingBal).toLocaleString('en-IN')}</span></div>
+      <div class="crow"><span>ಒಟ್ಟು ಖರೀದಿ / Total Procurement</span><span>₹${Math.round(s.totalDebit).toLocaleString('en-IN')}</span></div>
+      <div class="crow"><span>ಒಟ್ಟು ಪಾವತಿ / Total Payments</span><span>₹${Math.round(s.totalCredit).toLocaleString('en-IN')}</span></div>
+      <div class="crow"><span>ಅಂತಿಮ ಬಾಕಿ / Closing Balance</span><span>₹${Math.round(s.closingBal).toLocaleString('en-IN')}</span></div>
+    </div>
+    <div class="stmtsec">
+    <h3>📋 Procurement Records</h3>
+    <div class="tblwrap">
+    <table class="stmttbl">
+      <thead><tr><th>Date</th><th>Weighment Slip No</th><th>Gross Wt</th><th>Tare Wt</th><th>Net Wt</th><th>Ded %</th><th>Ded Wt</th><th>Net Cane Wt</th><th>Cane Rate</th><th>Amount</th><th>Land Owner</th></tr></thead>
+      <tbody>
+      ${procRows || '<tr><td colspan="11" style="text-align:center">No procurement entries in this period</td></tr>'}
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <div class="stmtsec">
+    <h3>💳 Payment Records</h3>
+    <div class="tblwrap">
+    <table class="stmttbl">
+      <thead><tr><th>Date</th><th>Payment Method</th><th>Paid To</th><th>Amount</th><th>Reference No</th><th>Remarks</th></tr></thead>
+      <tbody>
+      ${payRows || '<tr><td colspan="6" style="text-align:center">No payment entries in this period</td></tr>'}
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <div class="cbox" style="margin-top:16px">
+      <div class="crow"><span><strong>ಅಂತಿಮ ಬಾಕಿ / Closing Balance</strong></span><span><strong>₹${Math.round(s.closingBal).toLocaleString('en-IN')}</strong></span></div>
+    </div>`;
+}
+function renderStatement(s){
+  document.getElementById('stmtResultBox').innerHTML = statementHeaderHTML(s) + statementBodyHTML(s);
+}
+// Opens the browser print dialog with ONLY the statement visible —
+// on mobile/desktop the user can choose "Save as PDF" as the printer,
+// giving a downloadable PDF without needing any external library.
+function printStatement(){
+  const s=lastStatement; if(!s) return;
+  document.getElementById('printArea').innerHTML = statementHeaderHTML(s) + statementBodyHTML(s);
+  window.print();
+}
+function shareStatementWA(){
+  const s=lastStatement; if(!s) return;
+  let msg=`🌾 *Agri-Procurement & Ledger PWA*\n*FARMER STATEMENT*\n\n👨‍🌾 Farmer: *${s.farmer}*\n🏘️ Village: ${s.village}\n📱 Mobile: ${s.mobile}\n📅 Period: ${s.periodLabel}\n🕒 Generated: ${s.generatedAt}\n\nOpening Balance: ₹${Math.round(s.openingBal).toLocaleString('en-IN')}\nTotal Procurement: ₹${Math.round(s.totalDebit).toLocaleString('en-IN')}\nTotal Payments: ₹${Math.round(s.totalCredit).toLocaleString('en-IN')}\n`;
+
+  const procLines = s.lines.filter(l=>l.kind==='procurement');
+  msg+=`\n*📋 PROCUREMENT RECORDS*`;
+  if(procLines.length){
+    procLines.forEach(l=>{
+      const r=l.ref;
+      msg+=`\n${fmtDMY(l.date)} | Weighment: ${l.weighSlipNo||'-'}\n  Gross: ${r.gross}Kg | Tare: ${r.tare}Kg | Net Wt: ${Math.round(r.caneWt)}Kg\n  Ded: ${r.deduction}% (${Math.round(r.dedAmt)}Kg) | Net Cane: ${Math.round(r.netCane)}Kg | Rate: ₹${r.caneRate}\n  Amount: ₹${Math.round(l.debit).toLocaleString('en-IN')}${l.landOwner?' | Land Owner: '+l.landOwner:''}`;
+    });
+  } else {
+    msg+=`\nNo procurement entries in this period`;
+  }
+
+  const payLines = s.lines.filter(l=>l.kind==='payment');
+  msg+=`\n\n*💳 PAYMENT RECORDS*`;
+  if(payLines.length){
+    payLines.forEach(l=>{
+      msg+=`\n${fmtDMY(l.date)} | ${l.method||'-'}${l.paidTo?' to '+l.paidTo:''}\n  Amount: ₹${Math.round(l.credit).toLocaleString('en-IN')}${l.refNo?' | Ref: '+l.refNo:''}${l.remarks?' | '+l.remarks:''}`;
+    });
+  } else {
+    msg+=`\nNo payment entries in this period`;
+  }
+
+  msg+=`\n\n*Closing Balance: ₹${Math.round(s.closingBal).toLocaleString('en-IN')}*`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg));
+}
+
+// ══════════════════════════════════════
+//  FARMER VIEW (full history for one farmer, filterable by date)
+// ══════════════════════════════════════
+let fvCtxFarmer=null;
+function openFarmerView(name){
+  fvCtxFarmer=name;
+  document.getElementById('fvFarmerName').textContent=name;
+  setV('fv_from',''); setV('fv_to','');
+  renderFarmerViewBody();
+  document.getElementById('farmViewOv').classList.add('open'); lockScroll();
+}
+function closeFarmerView(){ document.getElementById('farmViewOv').classList.remove('open'); unlockScroll(); }
+function renderFarmerViewBody(){
+  const name=fvCtxFarmer; if(!name) return;
+  const from=document.getElementById('fv_from')?.value||'';
+  const to=document.getElementById('fv_to')?.value||'';
+  const inRange=d=>(!from||d>=from)&&(!to||d<=to);
+
+  const bal=farmerBalance(name);
+  const myRecsAll=recs.filter(r=>r.farmer===name && inRange(r.date||''));
+  const myRecs=[...myRecsAll].sort((a,b)=>tsFromId(b.id)-tsFromId(a.id)).slice(0,5);
+  const myPays=payments.filter(p=>p.farmer===name && inRange(p.date||''));
+  const landOwners=[...new Set(recs.filter(r=>r.farmer===name && r.landOwner && r.landOwner!=='-').map(r=>r.landOwner))];
+
+  const recRows=myRecs.length ? myRecs.map(r=>`
+    <div class="rc">
+      <div class="rtop"><div class="rname">${r.weighSlipNo||'-'}</div><div class="rtype ${r.type}">${r.type==='contract'?'📋 Direct':'🧑‍🌾 Contract'}</div></div>
+      <div class="rdet" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="rd2"><strong>${fmtDMY(r.date)}</strong>Date</div>
+        <div class="rd2"><strong>${r.weighSlipNo||'-'}</strong>Weighment Slip</div>
+        <div class="rd2"><strong>${r.netTon.toFixed(2)}T</strong>Net Cane</div>
+      </div>
+      ${r.landOwner&&r.landOwner!=='-'?`<div class="rd2" style="margin-bottom:6px">🏷️ Land Owner: ${r.landOwner}</div>`:''}
+      <div class="rbot"><span style="font-size:12px;color:var(--txs)">Total</span><span class="rbal">₹${Math.round(r.total).toLocaleString('en-IN')}</span></div>
+    </div>`).join('') + (myRecsAll.length>myRecs.length ? `<div class="empty" style="padding:10px 0"><p style="font-size:12px;color:var(--txs)">Showing latest 5 of ${myRecsAll.length} — full history available in Google Sheets</p></div>` : '') : `<div class="empty"><div class="ei">📭</div><p>No procurement entries</p></div>`;
+
+  const payRows=myPays.length ? myPays.map(p=>`
+    <div class="rc">
+      <div class="rtop"><div class="rname">${p.method}${p.paidTo?' — '+p.paidTo:''}</div></div>
+      <div class="rdet" style="grid-template-columns:1fr 1fr">
+        <div class="rd2"><strong>${fmtDMY(p.date)} ${p.time||''}</strong>Date & Time</div>
+        <div class="rd2"><strong>${p.refNo||'-'}</strong>Reference No</div>
+      </div>
+      <div class="rbot"><span style="font-size:12px;color:var(--txs)">Amount Paid</span><span class="rbal">₹${Math.round(p.amount).toLocaleString('en-IN')}</span></div>
+    </div>`).join('') : `<div class="empty"><div class="ei">📭</div><p>No payments</p></div>`;
+
+  document.getElementById('fvBody').innerHTML=`
+    <div class="cbox">
+      <div class="crow"><span>ಒಟ್ಟು ಬಾಕಿ / Outstanding Balance</span><span>₹${Math.round(bal).toLocaleString('en-IN')}</span></div>
+      <div class="crow"><span>ಜಮೀನಿನ ಮಾಲೀಕರು / Land Owner Name(s)</span><span>${landOwners.length?landOwners.join(', '):'-'}</span></div>
+    </div>
+    <div class="sectit" style="margin-top:14px">🌾 Procurement History (Latest 5)</div>
+    ${recRows}
+    <div class="sectit" style="margin-top:14px">💳 Payments</div>
+    ${payRows}`;
+}
+function renderFarms(){
+  const c=document.getElementById('farmList');
+  if(!farms.length){document.getElementById('fcnt').textContent=0;c.innerHTML=`<div class="empty"><div class="ei">👥</div><p>ರೈತರ ಮಾಹಿತಿ ಇಲ್ಲ</p></div>`;return;}
+
+  // Build a one-time index of land owner names per farmer (case-insensitive
+  // key) so search-by-land-owner stays fast even with large record sets —
+  // we scan "recs" once here instead of per-farmer per-keystroke.
+  const landOwnersByFarmer={};
+  recs.forEach(r=>{
+    if(!r.farmer || !r.landOwner || r.landOwner==='-') return;
+    const key=String(r.farmer).toLowerCase();
+    (landOwnersByFarmer[key]=landOwnersByFarmer[key]||new Set()).add(String(r.landOwner));
+  });
+
+  const s=(document.getElementById('fSrch')?.value||'').trim().toLowerCase();
+  const filtered = !s ? farms : farms.filter(f=>{
+    if(String(f.name||'').toLowerCase().includes(s)) return true;
+    if(String(f.village||'').toLowerCase().includes(s)) return true;
+    if(String(f.mobile||'').toLowerCase().includes(s)) return true;
+    const owners=landOwnersByFarmer[String(f.name||'').toLowerCase()];
+    if(owners) for(const o of owners) if(String(o||'').toLowerCase().includes(s)) return true;
+    return false;
+  });
+
+  document.getElementById('fcnt').textContent=filtered.length;
+  if(!filtered.length){c.innerHTML=`<div class="empty"><div class="ei">🔍</div><p>ಫಲಿತಾಂಶಗಳಿಲ್ಲ / No matching farmers</p></div>`;return;}
+
+  // Precompute every farmer's balance in one pass over recs/payments
+  // (same result as calling farmerBalance(f.name) per farmer, just without
+  // re-scanning the full records/payments arrays once per farmer).
+  const balMap={};
+  recs.forEach(r=>{ balMap[r.farmer]=(balMap[r.farmer]||0)+(Number(r.total)||0); });
+  payments.forEach(p=>{ balMap[p.farmer]=(balMap[p.farmer]||0)-(Number(p.amount)||0); });
+
+  c.innerHTML=filtered.map(f=>{
+    const bal=balMap[f.name]||0;
+    return `<div class="rc">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="fav">👨‍🌾</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600">${f.name}</div>
+          <div style="font-size:12px;color:var(--txs)">📍 ${f.village||'-'} | 📱 ${f.mobile||'-'}</div>
+        </div>
+      </div>
+      <div class="rbot" style="flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:11px;color:var(--txs)">ಬಾಕಿ / Outstanding Balance</div>
+          <div class="rbal ${bal<0?'neg':''}" style="font-size:16px">₹${Math.round(bal).toLocaleString('en-IN')}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="tbtn gy" style="padding:8px 10px;font-size:11px" onclick="openFarmerView('${f.name.replace(/'/g,"\\'")}')">👁️ View</button>
+          <button class="tbtn gn" style="padding:8px 10px;font-size:11px" onclick="openStatementModal('${f.name.replace(/'/g,"\\'")}')">📄 Statement</button>
+          <button class="tbtn br" style="padding:8px 10px;font-size:11px" onclick="openPaymentModal('${f.name.replace(/'/g,"\\'")}')">💳 Payment</button>
+          <button class="delbtn" onclick="deleteFarmerConfirm('${f.id}','${f.name.replace(/'/g,"\\'")}')">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function updFarmerList(){
+  document.getElementById('flist').innerHTML=farms.map(f=>`<option value="${f.name}">`).join('');
+}
+
+// Farmer Auto-fill: when the typed Farmer Name exactly matches an
+// existing farmer, fill Village + Mobile (+ any other saved farmer
+// details) from that farmer's profile. These fields remain fully
+// editable afterwards. Weighment Slip No, weights, rates,
+// amounts and balance are NEVER touched by this.
+function fillFarmerDetails(prefix){
+  const nameEl=document.getElementById(prefix+'_farmer');
+  if(!nameEl) return;
+  const typed=nameEl.value.trim();
+  if(!typed) return;
+  const f=farms.find(x=>x.name.toLowerCase()===typed.toLowerCase());
+  if(!f) return;
+  setV(prefix+'_village', f.village||'');
+  setV(prefix+'_mobile', f.mobile||'');
+}
+
+// Deleting a farmer removes ONLY the farmer profile row — procurement
+// records, payment history and receipts for that name are untouched.
+async function deleteFarmerConfirm(id,name){
+  if(!confirm(`"${name}"\n\nರೈತ ಪ್ರೊಫೈಲ್ ಅಳಿಸಬೇಕೇ?\nProcurement records & payment history will NOT be deleted.\nDelete this farmer profile?`)) return;
+  farms=farms.filter(f=>f.id!==id);
+  saveCache(); renderFarms(); updFarmerList();
+  toast('🗑️ ರೈತ ಪ್ರೊಫೈಲ್ ಅಳಿಸಲಾಗಿದೆ');
+  try{ const snapshot=await callAPI('deleteFarmer',{id}); applyServerSnapshot(snapshot); }
+  catch(err){ queueChange('deleteFarmer',{id}); }
+}
+
+// ══════════════════════════════════════
+//  PAYMENTS
+// ══════════════════════════════════════
+let payCtxFarmer=null, lastPaymentReceipt=null;
+function openPaymentModal(name){
+  payCtxFarmer=name;
+  document.getElementById('payFarmerName').textContent=name;
+  document.getElementById('payCurBal').textContent='₹'+Math.round(farmerBalance(name)).toLocaleString('en-IN');
+  setV('pay_date', todayStr());
+  setV('pay_method','Cash');
+  ['pay_cash_amt','pay_cash_to','pay_upi_amt','pay_upi_to','pay_upi_mobile','pay_upi_ref',
+   'pay_online_to','pay_online_amt','pay_online_ref','pay_remarks'].forEach(id=>setV(id,''));
+  onPayMethodChange();
+  document.getElementById('payPop').classList.add('open'); lockScroll();
+}
+// Toggles the field-set shown based on the chosen Payment Method:
+// Cash -> Amount, Paid To
+// UPI -> Amount, Paid To, Mobile Number, Reference Number (optional)
+// Online Transfer -> Account/Person Name, Amount, Reference Number (optional)
+function onPayMethodChange(){
+  const m=document.getElementById('pay_method').value;
+  document.getElementById('pay_cash_fields').classList.toggle('hidden', m!=='Cash');
+  document.getElementById('pay_upi_fields').classList.toggle('hidden', m!=='UPI');
+  document.getElementById('pay_online_fields').classList.toggle('hidden', m!=='Online Transfer');
+}
+async function confirmPayment(){
+  const name=payCtxFarmer; if(!name) return;
+  const date=document.getElementById('pay_date').value;
+  if(!date){toast('⚠️ ಪಾವತಿ ದಿನಾಂಕ ಆಯ್ಕೆಮಾಡಿ / Select Payment Date');return;}
+  const method=document.getElementById('pay_method').value;
+
+  let amt=0, paidTo='', mobile='', refNo='';
+  if(method==='Cash'){
+    amt=parseFloat(document.getElementById('pay_cash_amt').value)||0;
+    paidTo=document.getElementById('pay_cash_to').value.trim();
+    if(!paidTo){toast('⚠️ ಪಾವತಿಸಿದವರ ಹೆಸರು ನಮೂದಿಸಿ / Enter Paid To');return;}
+  }else if(method==='UPI'){
+    amt=parseFloat(document.getElementById('pay_upi_amt').value)||0;
+    paidTo=document.getElementById('pay_upi_to').value.trim();
+    mobile=document.getElementById('pay_upi_mobile').value.trim();
+    refNo=document.getElementById('pay_upi_ref').value.trim();
+    if(!paidTo){toast('⚠️ ಪಾವತಿಸಿದವರ ಹೆಸರು ನಮೂದಿಸಿ / Enter Paid To');return;}
+    if(!mobile){toast('⚠️ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ / Enter Mobile Number');return;}
+  }else if(method==='Online Transfer'){
+    paidTo=document.getElementById('pay_online_to').value.trim();
+    amt=parseFloat(document.getElementById('pay_online_amt').value)||0;
+    refNo=document.getElementById('pay_online_ref').value.trim();
+    if(!paidTo){toast('⚠️ ಖಾತೆ/ವ್ಯಕ್ತಿ ಹೆಸರು ನಮೂದಿಸಿ / Enter Account or Person Name');return;}
+  }
+  if(amt<=0){toast('⚠️ ಸರಿಯಾದ ಮೊತ್ತ ನಮೂದಿಸಿ');return;}
+  const remarks=document.getElementById('pay_remarks').value.trim();
+
+  const balBefore=farmerBalance(name);
+  const now=new Date();
+  const payment={
+    id:'p'+Date.now(), farmer:name,
+    amount:amt, balanceBefore:balBefore, remaining:balBefore-amt,
+    date, time:now.toTimeString().split(' ')[0],
+    method, paidTo, mobile, refNo, remarks,
+    synced:false
+  };
+  payments.unshift(payment); saveCache();
+  addLocalCashbookForPayment(payment);
+  renderFarms(); renderRecs(); updDash();
+  closePop('payPop');
+  lastPaymentReceipt=payment;
+  showPaymentReceipt(payment);
+  try{ const snapshot=await callAPI('savePayment',payment); applyServerSnapshot(snapshot); }
+  catch(err){ queueChange('savePayment',payment); }
+}
+function showPaymentReceipt(p){
+  document.getElementById('payReceiptBox').innerHTML=`
+    ${p.payId?`<div class="crow"><span>Payment ID</span><span>${p.payId}</span></div>`:''}
+    <div class="crow"><span>ರೈತ / Farmer</span><span>${p.farmer}</span></div>
+    <div class="crow"><span>ಪಾವತಿ ವಿಧಾನ / Payment Method</span><span>${p.method}</span></div>
+    <div class="crow"><span>ಪಾವತಿಸಿದವರು / Paid To</span><span>${p.paidTo||'-'}</span></div>
+    ${p.mobile?`<div class="crow"><span>ಮೊಬೈಲ್ / Mobile</span><span>${p.mobile}</span></div>`:''}
+    ${p.refNo?`<div class="crow"><span>ಉಲ್ಲೇಖ ಸಂಖ್ಯೆ / Reference No</span><span>${p.refNo}</span></div>`:''}
+    <div class="crow"><span>ಪಾವತಿ ಮೊದಲು / Balance Before</span><span>₹${Math.round(p.balanceBefore).toLocaleString('en-IN')}</span></div>
+    <div class="crow"><span>ಪಾವತಿಸಿದ ಮೊತ್ತ / Amount Paid</span><span>₹${Math.round(p.amount).toLocaleString('en-IN')}</span></div>
+    <div class="crow"><span>ಬಾಕಿ ಉಳಿದ / Remaining Balance</span><span>₹${Math.round(p.remaining).toLocaleString('en-IN')}</span></div>
+    <div class="crow"><span>ದಿನಾಂಕ ಮತ್ತು ಸಮಯ / Date & Time</span><span>${fmtDMY(p.date)} ${p.time}</span></div>
+    ${p.remarks?`<div class="crow"><span>ಟಿಪ್ಪಣಿ / Remarks</span><span>${p.remarks}</span></div>`:''}`;
+  document.getElementById('payReceiptPop').classList.add('open'); lockScroll();
+}
+function sharePaymentWA(){
+  const p=lastPaymentReceipt; if(!p) return;
+  const msg=`🌾 *Agri-Procurement & Ledger PWA*\nPayment Receipt\n\n${p.payId?`🔢 Payment ID: *${p.payId}*\n`:''}👨‍🌾 Farmer: *${p.farmer}*\n💳 Method: ${p.method}\n🙋 Paid To: ${p.paidTo||'-'}\n${p.mobile?`📱 Mobile: ${p.mobile}\n`:''}${p.refNo?`🔖 Ref No: ${p.refNo}\n`:''}💰 Balance Before: ₹${Math.round(p.balanceBefore).toLocaleString('en-IN')}\n✅ Amount Paid: ₹${Math.round(p.amount).toLocaleString('en-IN')}\n📊 Remaining Balance: ₹${Math.round(p.remaining).toLocaleString('en-IN')}\n📅 Date & Time: ${fmtDMY(p.date)} ${p.time}${p.remarks?`\n📝 Remarks: ${p.remarks}`:''}`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg));
+}
+
+// ══════════════════════════════════════
+//  CASH BOOK
+// ══════════════════════════════════════
+function txId(prefix){ return prefix+'-'+Date.now()+'-'+Math.floor(Math.random()*1000); }
+
+// Whenever a payment is recorded (Farmers → Record Payment), this creates
+// a matching automatic Cash Book entry (local optimistic copy; the server
+// creates the authoritative one when savePayment runs).
+function addLocalCashbookForPayment(p){
+  if(cashbook.some(c=>c.procId===p.id)) return;
+  cashbook.unshift({
+    id:txId('CB'), date:p.date, time:p.time,
+    txType:'procurement', item:'Payment to '+p.farmer+' ('+p.method+')',
+    amount:p.amount, paidTo:p.paidTo||p.farmer, remarks:p.remarks||'',
+    farmer:p.farmer, procId:p.id, synced:false
+  });
+  saveCache(); renderCashbook();
+}
+function openExpenseModal(){
+  document.getElementById('expModalTitle').textContent='✍️ Manual Expense';
+  ['exp_item','exp_amt','exp_to','exp_rem'].forEach(id=>setV(id,''));
+  setV('exp_date', todayStr());
+  document.getElementById('expPop').dataset.editId='';
+  document.getElementById('expPop').classList.add('open'); lockScroll();
+}
+function editExpense(id){
+  const e=cashbook.find(c=>c.id===id); if(!e||e.txType!=='manual') return;
+  document.getElementById('expModalTitle').textContent='✏️ Edit Manual Expense';
+  setV('exp_date',e.date||todayStr());
+  setV('exp_item',e.item); setV('exp_amt',e.amount); setV('exp_to',e.paidTo); setV('exp_rem',e.remarks||'');
+  document.getElementById('expPop').dataset.editId=id;
+  document.getElementById('expPop').classList.add('open'); lockScroll();
+}
+async function saveExpense(){
+  const date=document.getElementById('exp_date').value || todayStr();
+  const item=document.getElementById('exp_item').value.trim();
+  const amt=parseFloat(document.getElementById('exp_amt').value)||0;
+  const to=document.getElementById('exp_to').value.trim();
+  const rem=document.getElementById('exp_rem').value.trim();
+  if(!item||!amt){toast('⚠️ ವಸ್ತು ಮತ್ತು ಮೊತ್ತ ನಮೂದಿಸಿ');return;}
+  const editId=document.getElementById('expPop').dataset.editId;
+  let entry;
+  if(editId){
+    entry=cashbook.find(c=>c.id===editId);
+    if(!entry) return;
+    entry.date=date; entry.item=item; entry.amount=amt; entry.paidTo=to; entry.remarks=rem;
+  }else{
+    // Expense Date is chosen manually by the user; time remains automatic.
+    const now=new Date();
+    entry={id:txId('CB'), date, time:now.toTimeString().split(' ')[0],
+      txType:'manual', item, amount:amt, paidTo:to, remarks:rem, farmer:'', procId:'', synced:false};
+    cashbook.unshift(entry);
+  }
+  saveCache(); renderCashbook(); closePop('expPop');
+  toast('✅ ಖರ್ಚು ಉಳಿಸಲಾಗಿದೆ / Expense saved');
+  try{ const snapshot=await callAPI('saveExpense',entry); applyServerSnapshot(snapshot); }
+  catch(err){ queueChange('saveExpense',entry); }
+}
+async function deleteExpense(id){
+  const e=cashbook.find(c=>c.id===id); if(!e||e.txType!=='manual') return;
+  if(!confirm('ಈ ಖರ್ಚು ಅಳಿಸಬೇಕೇ?\nDelete this expense?')) return;
+  cashbook=cashbook.filter(c=>c.id!==id);
+  saveCache(); renderCashbook();
+  try{ const snapshot=await callAPI('deleteExpense',{id}); applyServerSnapshot(snapshot); }
+  catch(err){ queueChange('deleteExpense',{id}); }
+}
+function setCBF(f,el){
+  curCBFilter=f;
+  document.querySelectorAll('#pCash .ft').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCashbook();
+}
+function renderCashbook(){
+  const s=(document.getElementById('cbSrch')?.value||'').toLowerCase();
+  const df=document.getElementById('cbDateFilter')?.value||'';
+  let list=cashbook.filter(c=>{
+    if(curCBFilter==='manual') return c.txType==='manual';
+    if(curCBFilter==='procurement') return c.txType==='procurement';
+    return true;
+  }).filter(c=>!df||c.date===df)
+    .filter(c=>!s||(c.item||'').toLowerCase().includes(s)||(c.paidTo||'').toLowerCase().includes(s)||(c.farmer||'').toLowerCase().includes(s));
+  list=list.slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+
+  const today=todayStr();
+  const thisMonth=today.slice(0,7);
+  const todayTotal=cashbook.filter(c=>c.date===today).reduce((a,c)=>a+Number(c.amount),0);
+  const monthTotal=cashbook.filter(c=>(c.date||'').slice(0,7)===thisMonth).reduce((a,c)=>a+Number(c.amount),0);
+  const manualTotal=cashbook.filter(c=>c.txType==='manual').reduce((a,c)=>a+Number(c.amount),0);
+  const procTotal=cashbook.filter(c=>c.txType==='procurement').reduce((a,c)=>a+Number(c.amount),0);
+  setT('cbToday','₹'+Math.round(todayTotal).toLocaleString('en-IN'));
+  setT('cbMonth','₹'+Math.round(monthTotal).toLocaleString('en-IN'));
+  setT('cbManual','₹'+Math.round(manualTotal).toLocaleString('en-IN'));
+  setT('cbProc','₹'+Math.round(procTotal).toLocaleString('en-IN'));
+
+  const c=document.getElementById('cashList');
+  if(!c) return;
+  if(!list.length){c.innerHTML=`<div class="empty"><div class="ei">💵</div><p>ಯಾವುದೇ ವಹಿವಾಟುಗಳಿಲ್ಲ<br>No transactions found</p></div>`;return;}
+  c.innerHTML=list.map(e=>`
+    <div class="rc">
+      <div class="rtop">
+        <div class="rname">${e.item}</div>
+        <div class="rtype ${e.txType==='manual'?'':'direct'}">${e.txType==='manual'?'✍️ Manual':'🌾 Procurement'}</div>
+      </div>
+      <div class="rdet" style="grid-template-columns:1fr 1fr">
+        <div class="rd2"><strong>${fmtDMY(e.date)} ${e.time}</strong>Date & Time</div>
+        <div class="rd2"><strong>${e.paidTo||e.farmer||'-'}</strong>${e.txType==='manual'?'Paid To':'Farmer'}</div>
+      </div>
+      ${e.remarks?`<div class="rd2" style="margin-bottom:8px">${e.remarks}</div>`:''}
+      <div class="rbot">
+        <div class="rbal">₹${Math.round(e.amount).toLocaleString('en-IN')}</div>
+        ${e.txType==='manual'?`<div style="display:flex;gap:6px">
+          <button class="tbtn br" style="padding:6px 10px;font-size:11px" onclick="editExpense('${e.id}')">✏️ Edit</button>
+          <button class="delbtn" onclick="deleteExpense('${e.id}')">🗑️ Delete</button>
+        </div>`:'<div style="font-size:11px;color:var(--txs)">Auto (linked to procurement)</div>'}
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+//  SYNC — two-way, Google Sheets is the single source of truth.
+//  "Sync Now" now means: push anything still queued (offline changes),
+//  then pull the latest full dataset so this device matches every
+//  other device exactly.
+// ══════════════════════════════════════
+async function syncNow(){
+  if(!cfg.webhook){toast('⚠️ Settings ನಲ್ಲಿ Webhook URL ಹೊಂದಿಸಿ');goTo('pSet','');return;}
+  if(!navigator.onLine){toast('❌ ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಇಲ್ಲ');return;}
+  toast('☁️ Google Sheets ಜೊತೆ ಸಿಂಕ್ ಆಗುತ್ತಿದೆ...');
+  await flushQueue();
+  await loadFromCloud(true);
+}
+
+async function syncOne(id){
+  // Kept for the "☁️ Sync" button on the slip — records now sync
+  // automatically the moment they're created, so this simply forces
+  // an immediate re-sync of that one pending item (if any) plus a refresh.
+  const r=recs.find(x=>x.id===id);
+  if(r && pendingQueue.some(q=>q.payload && q.payload.id===id)){
+    toast('☁️ ಕಳಿಸುತ್ತಿದ್ದೇವೆ...');
+    await flushQueue();
+  }
+  await loadFromCloud(true);
+  closeSlip();
+}
+
+function resetResync(){
+  if(!confirm('Google Sheets ಜೊತೆ ಮತ್ತೆ ಸಂಪೂರ್ಣ ಸಿಂಕ್ ಮಾಡಬೇಕೇ?\nRe-sync everything with Google Sheets now?')) return;
+  toast('🔄 ಮರು-ಸಿಂಕ್ ಶುರುವಾಗಿದೆ...');
+  syncNow();
+}
+
+// ── FORCE FETCH FROM GOOGLE SHEETS ──────────────────────────────
+// Unlike syncNow()/Re-sync (which first PUSHES any queued local changes,
+// then pulls), Force Fetch is a pure PULL: it ignores/discards whatever is
+// in the local cache, downloads the current full snapshot straight from
+// Google Sheets, and completely replaces the local cache with it. This is
+// the button to use when the spreadsheet was edited directly and should
+// become the source of truth on this device. Offline usage after the
+// fetch keeps working exactly as before, since the fresh snapshot is
+// written into the same offline cache (saveCache) that the rest of the
+// app already relies on.
+async function forceFetchFromSheets(){
+  if(!cfg.webhook){toast('⚠️ Settings ನಲ್ಲಿ Webhook URL ಹೊಂದಿಸಿ');goTo('pSet','');return;}
+  if(!navigator.onLine){toast('❌ ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಇಲ್ಲ — ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ Force Fetch ಸಾಧ್ಯವಿಲ್ಲ');return;}
+  const pendingWarn = pendingQueue.length
+    ? ('⚠️ ' + pendingQueue.length + ' ಬದಲಾವಣೆಗಳು ಇನ್ನೂ Google Sheets ಗೆ ಕಳಿಸಲಾಗಿಲ್ಲ. Force Fetch ಮಾಡಿದರೆ ಅವು ಕಳೆದುಹೋಗುತ್ತವೆ (ಅಳಿಸಲ್ಪಡುತ್ತವೆ).\n\n')
+    : '';
+  if(!confirm(pendingWarn+'Google Sheets ನಿಂದ ಇತ್ತೀಚಿನ ಡೇಟಾ ಬಲವಂತವಾಗಿ ತರಬೇಕೇ?\nಸ್ಥಳೀಯ cache ಸಂಪೂರ್ಣ ಬದಲಾಗುತ್ತದೆ.\n\nForce fetch the latest data from Google Sheets now? This completely replaces the local cache on this device.')) return;
+  toast('⬇️ Google Sheets ನಿಂದ ಬಲವಂತವಾಗಿ ಡೇಟಾ ತರಲಾಗುತ್ತಿದೆ...');
+  try{
+    cloudSyncing=true; updSetDisplay();
+    const data = await callAPI('getAll',{});
+    // Ignore/discard local cache and any unsynced local queue — the
+    // spreadsheet is being treated as the sole source of truth for this
+    // operation.
+    pendingQueue = [];
+    localStorage.setItem('snj_queue','[]');
+    applyServerSnapshot(data); // replaces recs/farms/payments/cashbook + saves fresh cache
+    toast('✅ Google Sheets ನಿಂದ ಇತ್ತೀಚಿನ ಡೇಟಾ ಪಡೆಯಲಾಗಿದೆ');
+  }catch(err){
+    console.warn('Force fetch failed:', err);
+    toast('❌ Force Fetch ವಿಫಲವಾಗಿದೆ — ಇಂಟರ್ನೆಟ್/ಸೆಟ್ಟಿಂಗ್ಸ್ ಪರಿಶೀಲಿಸಿ');
+  }finally{
+    cloudSyncing=false; updSetDisplay();
+  }
+}
+function openSheet(){
+  if(cfg.sheetUrl) window.open(cfg.sheetUrl,'_blank');
+  else{toast('⚠️ Settings ನಲ್ಲಿ Google Sheet URL ಹೊಂದಿಸಿ');goTo('pSet','');}
+}
+
+// ══════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════
+async function setWebhook(){
+  const u=prompt('Apps Script Webhook URL ಅಂಟಿಸಿ:\n(Paste the /exec URL from Apps Script deployment)',cfg.webhook||'');
+  if(u!==null){
+    cfg.webhook=u.trim();saveCfg();updSetDisplay();toast('✅ Webhook URL ಉಳಿಸಲಾಗಿದೆ — ಡೇಟಾ ಲೋಡ್ ಆಗುತ್ತಿದೆ...');
+    await loadFromCloud(true);
+  }
+}
+function setSheetUrl(){
+  const u=prompt('Google Sheet URL ಅಂಟಿಸಿ:\n(Paste the docs.google.com/spreadsheets URL)',cfg.sheetUrl||'');
+  if(u!==null){cfg.sheetUrl=u.trim();saveCfg();updSetDisplay();}
+}
+function showRatePop(){
+  document.getElementById('s_cr').value=cfg.cr;
+  document.getElementById('s_dr').value=cfg.dr;
+  document.getElementById('s_hr').value=cfg.hr;
+  document.getElementById('s_tr').value=cfg.tr;
+  document.getElementById('ratePop').classList.add('open'); lockScroll();
+}
+async function saveRates(){
+  cfg.cr=parseFloat(document.getElementById('s_cr').value)||2900;
+  cfg.dr=parseFloat(document.getElementById('s_dr').value)||3500;
+  cfg.hr=parseFloat(document.getElementById('s_hr').value)||350;
+  cfg.tr=parseFloat(document.getElementById('s_tr').value)||250;
+  saveCache(); applyRates(); closePop('ratePop'); updSetDisplay();
+  toast('✅ ದರಗಳು ಉಳಿಸಲಾಗಿದೆ');
+  const payload={cr:cfg.cr,dr:cfg.dr,hr:cfg.hr,tr:cfg.tr};
+  try{ const snapshot=await callAPI('saveSettings',payload); applyServerSnapshot(snapshot); }
+  catch(err){ queueChange('saveSettings',payload); }
+}
+function applyRates(){
+  setV('c_cr',cfg.cr);setV('c_hr',cfg.hr);setV('c_tr',cfg.tr);setV('d_cr',cfg.dr);
+}
+// Keeps the background page from scrolling while any dialog is open (see
+// the .noscroll rule). Re-checks all overlays before unlocking so closing
+// one dialog doesn't unlock the page while another is still open behind it.
+function anyPopupOpen(){
+  return !!document.querySelector('.pop.open, .slov.open');
+}
+function lockScroll(){ document.body.classList.add('noscroll'); }
+function unlockScroll(){ if(!anyPopupOpen()) document.body.classList.remove('noscroll'); }
+function closePop(id){document.getElementById(id).classList.remove('open');unlockScroll();}
+function updSetDisplay(){
+  document.getElementById('dCR').textContent=cfg.cr;
+  document.getElementById('dDR').textContent=cfg.dr;
+  document.getElementById('whPrev').textContent=cfg.webhook?'✅ Connected — '+cfg.webhook.substring(0,40)+'...':'ಹೊಂದಿಸಲಾಗಿಲ್ಲ / Not set';
+  document.getElementById('shPrev').textContent=cfg.sheetUrl?'✅ '+cfg.sheetUrl.substring(0,40)+'...':'ಹೊಂದಿಸಲಾಗಿಲ್ಲ / Not set';
+  document.getElementById('setRecCnt').textContent=recs.length;
+  const ban=document.getElementById('sban'),txt=document.getElementById('sbanTxt');
+  if(!cfg.webhook){ban.className='sban';txt.textContent='⚠️ Webhook URL ಹೊಂದಿಸಿ | Setup required';}
+  else if(cloudSyncing){ban.className='sban';txt.textContent='☁️ ಸಿಂಕ್ ಆಗುತ್ತಿದೆ... | Syncing...';}
+  else if(pendingQueue.length){ban.className='sban';txt.textContent='⏳ '+pendingQueue.length+' ಬಾಕಿ | pending upload (offline)';}
+  else{ban.className='sban ok';txt.textContent='✅ Google Sheets ಜೋಡಿಸಲಾಗಿದೆ | Connected & synced';}
+  document.getElementById('openShBtn').style.display=cfg.sheetUrl?'flex':'none';
+}
+
+// ══════════════════════════════════════
+//  EXPORT CSV
+// ══════════════════════════════════════
+// Displayed Type label is swapped (Direct/Contract) to match the rest of
+// the app; the underlying r.type key driving rates/logic is unaffected.
+function typeLabel(type){ return type==='contract' ? 'Direct' : 'Contract'; }
+function exportCSV(){
+  if(!recs.length){toast('⚠️ ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ');return;}
+  const hdr=['Weighment Slip No','Type','Date','Farmer','Land Owner / ಜಮೀನಿನ ಮಾಲೀಕರ ಹೆಸರು','Village','Mobile','Vehicle','Gross','Tare','Deduction%','Cane Wt','Ded Amt','Net Cane','Net Ton','Cane Rate','Harvest Rate','Transport Rate','Cane Amt','Harvest Amt','Transport Amt','Total','Outstanding Balance','Synced'];
+  const rows=recs.map(r=>[r.weighSlipNo||'-',typeLabel(r.type),fmtDMY(r.date),r.farmer,r.landOwner||'-',r.village||'',r.mobile||'',r.vehicle||'',r.gross,r.tare,r.deduction,Math.round(r.caneWt),Math.round(r.dedAmt),Math.round(r.netCane),r.netTon.toFixed(3),r.caneRate,r.harvestRate,r.transportRate,Math.round(r.caneAmt),Math.round(r.harAmt),Math.round(r.traAmt),Math.round(r.total),Math.round(r.balance),r.synced?'Yes':'No']);
+  const csv=[hdr,...rows].map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='Agri_Records_'+todayStr()+'.csv';
+  a.click();
+  toast('✅ CSV Downloaded');
+}
+// ══════════════════════════════════════
+//  STORAGE — Google Sheets is the source of truth. localStorage here is
+//  ONLY a temporary offline cache (snj_r_cache / snj_f_cache) plus the
+//  device-local connection settings (webhook / sheetUrl in snj_cfg).
+// ══════════════════════════════════════
+function saveCache(){
+  localStorage.setItem('snj_r_cache',JSON.stringify(recs));
+  localStorage.setItem('snj_f_cache',JSON.stringify(farms));
+  localStorage.setItem('snj_p_cache',JSON.stringify(payments));
+  localStorage.setItem('snj_cb_cache',JSON.stringify(cashbook));
+  saveCfg();
+}
+function saveCfg(){localStorage.setItem('snj_cfg',JSON.stringify(cfg));}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+let _tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3500);
+}
+</script>
+
+<script>
+// SERVICE WORKER
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(()=>console.log('SW ok'))
+      .catch(e=>console.log('SW err',e));
+  });
+}
+</script>
+</body>
+</html>
